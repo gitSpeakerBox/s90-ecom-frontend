@@ -1,0 +1,96 @@
+.catalog-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-block-start: 48px;
+  padding: 0 0 64px 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+  .catalog-pagination {
+    margin-block-start: 48px;
+    padding: 0 0 48px 0;
+  }
+}
+
+.pagination-arrow-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--color-border-hairline, #E4E0D8);
+  background-color: transparent;
+  color: var(--color-text-main, #111111);
+  cursor: pointer;
+  border-radius: var(--radius-none, 0px);
+  transition: all 0.2s ease;
+}
+
+.pagination-arrow-btn:hover:not(:disabled) {
+  background-color: #111111;
+  color: #ffffff;
+  border-color: #111111;
+}
+
+.pagination-arrow-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.pagination-arrow-btn:focus-visible {
+  outline: 2px solid #111111;
+  outline-offset: 2px;
+}
+
+.pagination-pages-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pagination-page-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid transparent;
+  background-color: transparent;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: var(--fw-medium, 500);
+  color: #444444;
+  cursor: pointer;
+  border-radius: var(--radius-none, 0px);
+  transition: all 0.2s ease;
+}
+
+.pagination-page-btn:hover {
+  background-color: #F0F0F0;
+  color: #000000;
+}
+
+.pagination-page-btn.active {
+  background-color: #111111;
+  color: #ffffff;
+  border-color: #111111;
+  font-weight: var(--fw-bold, 700);
+}
+
+.pagination-page-btn:focus-visible {
+  outline: 2px solid #111111;
+  outline-offset: 2px;
+}
+
+[dir="rtl"] .pagination-arrow-btn svg {
+  transform: scaleX(-1);
+}
+
+[dir="rtl"] .pagination-page-btn {
+  font-family: var(--font-arabic-body, "IBM Plex Sans Arabic", sans-serif);
+}
+

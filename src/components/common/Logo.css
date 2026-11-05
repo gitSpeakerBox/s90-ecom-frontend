@@ -1,0 +1,32 @@
+.site-logo {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-logo);
+  color: var(--color-text-main);
+  text-decoration: none;
+  line-height: 1;
+  letter-spacing: var(--tracking-logo);
+  user-select: none;
+  transition: color 200ms ease;
+}
+
+.site-logo-bold {
+  font-weight: var(--fw-black);
+  font-size: 22px;
+}
+
+.site-logo-light {
+  display: block;
+  font-weight: var(--fw-light);
+  font-size: 12px;
+  margin-inline-start: 0;
+  margin-top: 2px;
+}
+
+@media (max-width: 480px) {
+  .site-logo-bold,
+  .site-logo-light {
+    font-size: 16px;
+  }
+}
+

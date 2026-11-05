@@ -1,0 +1,7 @@
+.shoes-home-page {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  background-color: var(--color-bg, #FFFFFF);
+  min-height: 100vh;
+}

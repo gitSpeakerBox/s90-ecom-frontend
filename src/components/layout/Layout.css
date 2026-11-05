@@ -1,0 +1,20 @@
+.app-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-bg, #FFFFFF);
+}
+
+.app-content {
+  flex: 1 0 auto;
+  width: 100%;
+  background-color: var(--color-bg, #FFFFFF);
+}
+
+.app-content.has-hero {
+  padding-top: var(--height-announcement, 36px);
+}
+
+.app-content.no-hero {
+  padding-top: calc(var(--height-announcement, 36px) + var(--height-header, 64px));
+}

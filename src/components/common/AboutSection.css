@@ -1,0 +1,230 @@
+/* About Section */
+.about-section {
+  background-color: var(--color-bg-page, #ffffff);
+  border-top: 1px solid #E5E5E5;
+  padding-block: 48px;
+  padding-inline: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.about-container {
+  max-width: 1100px;
+  margin-inline: auto;
+  padding-inline: 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  text-align: start;
+  box-sizing: border-box;
+}
+
+/* Left Column */
+.about-col-left {
+  text-align: start;
+}
+
+.about-label {
+  font-family: var(--font-body);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: #6B6B6B;
+  margin: 0 0 12px 0;
+  padding: 0;
+  line-height: 1.4;
+  text-align: start;
+}
+
+.about-title {
+  font-family: var(--font-headline);
+  font-size: clamp(22px, 2.2vw, 30px);
+  font-weight: 500;
+  line-height: 1.25;
+  color: #111111;
+  max-width: 360px;
+  margin: 0;
+  text-align: start;
+}
+
+/* Right Column */
+.about-col-right {
+  max-width: 640px;
+  text-align: start;
+}
+
+.about-p {
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.7;
+  color: #555555;
+  text-align: start;
+  margin: 0;
+  padding: 0;
+}
+
+.about-collapsible-inner .about-p {
+  margin-block-start: 12px;
+}
+
+.about-closing {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.55;
+  color: #111111;
+  text-align: start;
+  margin-block-start: 20px;
+  margin-block-end: 0;
+  border-inline-start: 2px solid #111111;
+  padding-inline-start: 14px;
+  padding-block: 4px;
+  min-height: 32px;
+  box-sizing: border-box;
+}
+
+/* Mobile Collapsible */
+.about-collapsible {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 250ms ease;
+  overflow: hidden;
+}
+
+.about-collapsible.is-expanded {
+  grid-template-rows: 1fr;
+}
+
+.about-collapsible-inner {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.about-toggle-btn {
+  display: inline-block;
+  background: none;
+  border: none;
+  padding: 0;
+  margin-block-start: 12px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  color: #111111;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  text-align: start;
+  transition: color 150ms ease;
+}
+
+.about-toggle-btn:hover {
+  color: #555555;
+}
+
+.about-toggle-btn:focus-visible {
+  outline: 2px solid #111111;
+  outline-offset: 2px;
+}
+
+/* Mobile viewport adjustments (< 768px) */
+@media (max-width: 767px) {
+  .about-section {
+    padding-block: 32px;
+  }
+
+  .about-container {
+    padding-inline: 20px;
+    gap: 16px;
+  }
+}
+
+/* Tablet & Desktop (>= 768px): Show everything, hide toggle button */
+@media (min-width: 768px) {
+  .about-collapsible {
+    display: block;
+    overflow: visible;
+  }
+
+  .about-collapsible-inner {
+    overflow: visible;
+  }
+
+  .about-toggle-btn {
+    display: none;
+  }
+}
+
+/* Desktop layout (>= 900px): Two columns */
+@media (min-width: 900px) {
+  .about-container {
+    display: grid;
+    grid-template-columns: 5fr 7fr;
+    column-gap: 64px;
+    row-gap: 0;
+    align-items: start;
+  }
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .about-collapsible {
+    transition: none;
+  }
+}
+
+/* Arabic (RTL) typography and layout */
+html[lang="ar"] .about-section,
+[lang="ar"] .about-section,
+[dir="rtl"] .about-section {
+  direction: rtl;
+  text-align: start;
+}
+
+html[lang="ar"] .about-col-left,
+[lang="ar"] .about-col-left,
+[dir="rtl"] .about-col-left,
+html[lang="ar"] .about-col-right,
+[lang="ar"] .about-col-right,
+[dir="rtl"] .about-col-right {
+  text-align: start;
+}
+
+html[lang="ar"] .about-label,
+[lang="ar"] .about-label,
+[dir="rtl"] .about-label {
+  font-family: var(--font-arabic-body);
+  letter-spacing: 0;
+  text-align: start;
+}
+
+html[lang="ar"] .about-title,
+[lang="ar"] .about-title,
+[dir="rtl"] .about-title {
+  font-family: var(--font-arabic-headline);
+  letter-spacing: 0;
+  line-height: 1.35;
+  text-align: start;
+}
+
+html[lang="ar"] .about-p,
+[lang="ar"] .about-p,
+[dir="rtl"] .about-p {
+  font-family: var(--font-arabic-body);
+  line-height: 1.9;
+  text-align: start;
+}
+
+html[lang="ar"] .about-closing,
+[lang="ar"] .about-closing,
+[dir="rtl"] .about-closing {
+  font-family: var(--font-arabic-body);
+  line-height: 1.9;
+  text-align: start;
+}
+
+html[lang="ar"] .about-toggle-btn,
+[lang="ar"] .about-toggle-btn,
+[dir="rtl"] .about-toggle-btn {
+  font-family: var(--font-arabic-body);
+  text-align: start;
+}

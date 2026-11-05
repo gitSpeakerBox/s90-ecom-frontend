@@ -1,0 +1,248 @@
+.top-bar-block {
+  width: 100%;
+  background-color: #141414;
+  color: #ffffff;
+  position: relative;
+  z-index: 95;
+}
+
+/* Row 1: Utility Bar */
+.top-utility-bar {
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-inline: 48px;
+  box-sizing: border-box;
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: var(--tracking-eyebrow, 0.14em);
+  text-transform: uppercase;
+}
+
+.top-utility-lang {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lang-btn {
+  background: none;
+  border: none;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 11px;
+  letter-spacing: inherit;
+  text-transform: uppercase;
+  cursor: pointer;
+  padding: 4px 2px;
+  opacity: 0.65;
+  transition: opacity 0.2s ease, text-decoration 0.2s ease;
+}
+
+.lang-btn:hover {
+  opacity: 0.95;
+}
+
+.lang-btn.active {
+  opacity: 1;
+  font-weight: var(--fw-bold, 700);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.lang-btn:focus-visible {
+  outline: 1px solid #ffffff;
+  outline-offset: 2px;
+}
+
+.lang-divider {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 11px;
+}
+
+/* Country Selector */
+.top-utility-country {
+  position: relative;
+}
+
+.country-trigger-btn {
+  background: none;
+  border: none;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 11px;
+  letter-spacing: inherit;
+  text-transform: uppercase;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 4px;
+  transition: opacity 0.2s ease;
+}
+
+.country-trigger-btn:hover {
+  opacity: 0.85;
+}
+
+.country-trigger-btn:focus-visible {
+  outline: 1px solid #ffffff;
+  outline-offset: 2px;
+}
+
+.fi,
+.top-utility-country .fi,
+.country-trigger-btn .fi,
+.country-option .fi {
+  width: 20px;
+  height: 15px;
+  display: inline-block;
+  margin-inline-end: 8px;
+  background-size: cover;
+  border-radius: 0;
+  flex-shrink: 0;
+  vertical-align: middle;
+}
+
+.country-name {
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.country-chevron {
+  transition: transform 0.2s ease;
+}
+
+.country-chevron.open {
+  transform: rotate(180deg);
+}
+
+/* Dropdown Panel */
+.country-dropdown-panel {
+  position: absolute;
+  top: calc(100% + 4px);
+  inset-inline-end: 0;
+  width: 240px;
+  background-color: #ffffff;
+  color: var(--color-text-main, #111111);
+  border: 1px solid var(--color-border-hairline, #E4E0D8);
+  box-shadow: none;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  z-index: 1000;
+  box-sizing: border-box;
+}
+
+.country-option {
+  height: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-inline: 16px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+  user-select: none;
+  box-sizing: border-box;
+}
+
+.country-option:not(:last-child) {
+  border-bottom: 1px solid #f0ede6;
+}
+
+.country-option:hover,
+.country-option:focus-visible {
+  background-color: var(--color-bg-page, #F5F3EF);
+  outline: none;
+}
+
+.country-option.selected {
+  font-weight: var(--fw-bold, 700);
+}
+
+.country-option-name {
+  flex: 1;
+}
+
+.country-option-currency {
+  font-size: 11px;
+  color: var(--color-text-muted, #6B6B6B);
+  font-weight: normal;
+}
+
+.country-option-check {
+  color: var(--color-text-main, #111111);
+  margin-inline-start: 4px;
+}
+
+/* Row 2: Shipping Announcement Bar */
+.top-shipping-bar {
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-inline: 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.shipping-message {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: var(--fw-medium, 500);
+  letter-spacing: var(--tracking-eyebrow, 0.14em);
+  text-transform: uppercase;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 900px) {
+  .top-utility-bar {
+    padding-inline: 20px;
+  }
+}
+
+@media (max-width: 640px) {
+  .top-utility-bar {
+    display: flex;
+    padding-inline: 16px;
+  }
+
+  .top-shipping-bar {
+    border-top: none;
+    padding-inline: 8px;
+  }
+
+  .shipping-message {
+    font-size: 9.5px;
+    letter-spacing: 0.05em;
+  }
+}
+
+@media (max-width: 380px) {
+  .top-utility-bar {
+    padding-inline: 10px;
+  }
+
+  .top-utility-lang {
+    gap: 6px;
+  }
+
+  .country-trigger-btn {
+    gap: 6px;
+  }
+
+  .country-name {
+    max-width: 95px;
+  }
+}

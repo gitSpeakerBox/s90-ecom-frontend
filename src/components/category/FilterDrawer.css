@@ -1,0 +1,581 @@
+/* ─────────────────────────────────────────────────────────────
+   FilterDrawer Component Styles
+   ───────────────────────────────────────────────────────────── */
+
+/* Overlay */
+.filter-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1999;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 250ms ease, visibility 250ms ease;
+  pointer-events: none;
+}
+
+.filter-overlay.is-visible {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+/* Drawer Dialog */
+.filter-drawer {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  inset-inline-end: 0;
+  width: 420px;
+  max-width: 100%;
+  height: 100%;
+  height: 100dvh;
+  background-color: #ffffff;
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  box-shadow: -4px 0 24px rgba(0, 0, 0, 0.15);
+  box-sizing: border-box;
+  transform: translateX(100%);
+  transition: transform 250ms cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+}
+
+.filter-drawer.is-open {
+  transform: translateX(0);
+}
+
+/* RTL Support: opens from left edge in Arabic */
+[dir="rtl"] .filter-drawer {
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.15);
+  transform: translateX(-100%);
+}
+
+[dir="rtl"] .filter-drawer.is-open {
+  transform: translateX(0);
+}
+
+/* Drawer Header */
+.filter-drawer-header {
+  height: 60px;
+  min-height: 60px;
+  padding-inline: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--color-border-hairline, #E4E0D8);
+  box-sizing: border-box;
+  background-color: #ffffff;
+}
+
+.filter-drawer-title-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--color-text-main, #111111);
+}
+
+.filter-drawer-title {
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: var(--fw-bold, 700);
+  letter-spacing: 0.04em;
+  margin: 0;
+  text-transform: capitalize;
+  color: var(--color-text-main, #111111);
+}
+
+.filter-drawer-close-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: #111111;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: opacity 0.2s ease, transform 0.15s ease;
+  outline: none;
+}
+
+.filter-drawer-close-btn:hover {
+  opacity: 0.85;
+  transform: scale(1.05);
+}
+
+.filter-drawer-close-btn:focus-visible {
+  outline: 2px solid #111111;
+  outline-offset: 2px;
+}
+
+/* Drawer Body (scrollable) */
+.filter-drawer-body {
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background-color: #ffffff;
+  scrollbar-width: thin;
+}
+
+/* Accordion Sections */
+.filter-accordion-section {
+  border-bottom: 1px solid var(--color-border-hairline, #E4E0D8);
+}
+
+.filter-accordion-header {
+  width: 100%;
+  padding-block: 16px;
+  padding-inline: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: start;
+  box-sizing: border-box;
+  transition: background-color 0.15s ease;
+}
+
+.filter-accordion-header:hover {
+  background-color: #F6F6F6;
+}
+
+.filter-accordion-header:focus-visible {
+  outline: 2px solid var(--color-text-main, #111111);
+  outline-offset: -2px;
+}
+
+.filter-accordion-label {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: var(--fw-bold, 700);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-main, #111111);
+}
+
+.filter-accordion-chevron {
+  color: var(--color-text-main, #111111);
+  transition: transform 0.25s ease;
+  flex-shrink: 0;
+}
+
+.filter-accordion-chevron.is-open {
+  transform: rotate(180deg);
+}
+
+.filter-accordion-content {
+  padding-inline: 24px;
+  padding-bottom: 20px;
+  padding-top: 4px;
+  box-sizing: border-box;
+}
+
+/* 1. Checkbox Lists (Team, Season, Type, Brand) */
+.filter-checkbox-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.filter-checkbox-row {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+  gap: 10px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-text-main, #111111);
+  transition: color 0.15s ease;
+}
+
+.filter-checkbox-row:hover {
+  color: #000000;
+}
+
+.filter-checkbox-input-wrap {
+  position: relative;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.filter-checkbox-input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  margin: 0;
+}
+
+.filter-checkbox-custom {
+  width: 18px;
+  height: 18px;
+  border: 1px solid var(--color-border-hairline, #C4BFB4);
+  background-color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  color: #ffffff;
+  transition: all 0.15s ease;
+}
+
+.filter-checkbox-row.is-checked .filter-checkbox-custom {
+  background-color: #111111;
+  border-color: #111111;
+}
+
+.filter-checkbox-input:focus-visible + .filter-checkbox-custom {
+  outline: 2px solid #111111;
+  outline-offset: 2px;
+}
+
+.filter-checkbox-label {
+  flex: 1;
+  line-height: 1.3;
+}
+
+.filter-checkbox-count {
+  font-size: 12px;
+  color: var(--color-text-muted, #777777);
+  margin-inline-start: auto;
+  font-weight: var(--fw-normal, 400);
+}
+
+/* 2. Size Square Toggle Buttons */
+.filter-size-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.filter-size-btn {
+  min-width: 42px;
+  height: 42px;
+  padding: 0 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #ffffff;
+  border: 1px solid var(--color-border-hairline, #D2CFC7);
+  color: var(--color-text-main, #111111);
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: var(--fw-bold, 700);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-sizing: border-box;
+}
+
+.filter-size-btn:hover {
+  border-color: #111111;
+}
+
+.filter-size-btn.is-selected {
+  background-color: #111111;
+  border-color: #111111;
+  color: #ffffff;
+}
+
+.filter-size-btn:focus-visible {
+  outline: 2px solid #111111;
+  outline-offset: 2px;
+}
+
+/* 3. Color Round Swatches */
+.filter-color-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.filter-color-swatch {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.18);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin: 0;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  position: relative;
+  box-sizing: border-box;
+}
+
+.filter-color-swatch:hover {
+  transform: scale(1.12);
+}
+
+.filter-color-swatch.is-selected {
+  box-shadow: 0 0 0 2px #ffffff, 0 0 0 3.5px #111111;
+}
+
+.filter-color-swatch:focus-visible {
+  outline: 2px solid #111111;
+  outline-offset: 3px;
+}
+
+.filter-color-check {
+  display: block;
+}
+
+.filter-color-check.is-light {
+  color: #ffffff;
+}
+
+.filter-color-check.is-dark {
+  color: #111111;
+}
+
+/* 4. Price Inputs & Range Slider */
+.filter-price-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-top: 4px;
+}
+
+.filter-price-inputs {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.filter-price-field {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.filter-price-label {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: var(--fw-medium, 500);
+  text-transform: uppercase;
+  color: var(--color-text-muted, #777777);
+  letter-spacing: 0.04em;
+}
+
+.filter-price-input-box {
+  display: flex;
+  align-items: center;
+  height: 38px;
+  border: 1px solid var(--color-border-hairline, #D2CFC7);
+  background-color: #ffffff;
+  padding-inline: 8px;
+  box-sizing: border-box;
+}
+
+.filter-price-curr {
+  font-family: var(--font-body);
+  font-size: 11px;
+  color: var(--color-text-muted, #777777);
+  margin-inline-end: 4px;
+  user-select: none;
+}
+
+.filter-price-num-input {
+  width: 100%;
+  border: none;
+  background: transparent;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: var(--fw-medium, 500);
+  color: var(--color-text-main, #111111);
+  outline: none;
+  padding: 0;
+  -moz-appearance: textfield;
+}
+
+.filter-price-num-input::-webkit-outer-spin-button,
+.filter-price-num-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.filter-price-input-box:focus-within {
+  border-color: #111111;
+}
+
+.filter-price-separator {
+  padding-bottom: 8px;
+  color: var(--color-text-muted, #777777);
+  font-weight: bold;
+}
+
+.filter-price-slider-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.filter-price-range-slider {
+  width: 100%;
+  height: 4px;
+  background: #E4E0D8;
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+  accent-color: #111111;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.filter-price-range-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #111111;
+  cursor: pointer;
+  border: 2px solid #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  transition: transform 0.15s ease;
+}
+
+.filter-price-range-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+}
+
+.filter-price-slider-ticks {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-body);
+  font-size: 11px;
+  color: var(--color-text-muted, #777777);
+}
+
+/* 5. Sort By Single Select List */
+.filter-sort-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.filter-sort-item {
+  width: 100%;
+  padding-block: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: #444444;
+  text-align: start;
+  transition: color 0.15s ease;
+  box-sizing: border-box;
+}
+
+.filter-sort-item:hover {
+  color: #000000;
+}
+
+.filter-sort-item.is-selected {
+  font-weight: var(--fw-bold, 700);
+  color: #111111;
+}
+
+.filter-sort-item:focus-visible {
+  outline: 2px solid #111111;
+  outline-offset: 2px;
+}
+
+.filter-sort-check {
+  color: #111111;
+  margin-inline-start: auto;
+}
+
+/* Sticky Footer */
+.filter-drawer-footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  background-color: #ffffff;
+  border-top: 1px solid var(--color-border-hairline, #E4E0D8);
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-sizing: border-box;
+}
+
+.filter-footer-btn {
+  flex: 1;
+  height: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: var(--fw-bold, 700);
+  letter-spacing: 0.04em;
+  text-transform: capitalize;
+  cursor: pointer;
+  transition: opacity 0.2s ease, background-color 0.2s ease;
+  box-sizing: border-box;
+}
+
+.filter-btn-clear {
+  background-color: #EBEBEB;
+  color: #111111;
+}
+
+.filter-btn-clear:hover {
+  background-color: #E0E0E0;
+}
+
+.filter-btn-apply {
+  background-color: #111111;
+  color: #ffffff;
+}
+
+.filter-btn-apply:hover {
+  opacity: 0.88;
+}
+
+.filter-footer-btn:focus-visible {
+  outline: 2px solid #111111;
+  outline-offset: 2px;
+}
+
+/* Mobile: drawer takes full width (100%) */
+@media (max-width: 640px) {
+  .filter-drawer {
+    width: 100%;
+  }
+
+  .filter-drawer-header {
+    padding-inline: 16px;
+  }
+
+  .filter-accordion-header {
+    padding-inline: 16px;
+  }
+
+  .filter-accordion-content {
+    padding-inline: 16px;
+  }
+
+  .filter-drawer-footer {
+    padding: 14px 16px;
+  }
+}
+

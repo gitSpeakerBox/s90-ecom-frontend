@@ -1,0 +1,76 @@
+.banner-strip {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--gap-banner);
+  background-color: var(--color-gap-white);
+  padding: var(--gap-banner) 0;
+  width: 100%;
+}
+
+.banner-tile {
+  position: relative;
+  height: var(--height-banner-strip);
+  overflow: hidden;
+  display: block;
+  background-color: #141414;
+  text-decoration: none;
+}
+
+.banner-tile-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transition: transform 0.4s ease;
+}
+
+.banner-tile:hover .banner-tile-image {
+  transform: scale(1.03);
+}
+
+.banner-tile-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to right,
+    rgba(0, 0, 0, 0.05) 0%,
+    rgba(14, 14, 14, 0.6) 45%,
+    rgba(14, 14, 14, 0.92) 100%
+  );
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-end;
+  padding: 0 28px;
+  pointer-events: none;
+}
+
+.banner-tile-text {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: var(--fw-medium);
+  letter-spacing: var(--tracking-eyebrow);
+  color: #ffffff;
+  text-transform: uppercase;
+  text-align: right;
+  line-height: 1.45;
+  white-space: pre-line;
+}
+
+.banner-tile-line {
+  width: 32px;
+  height: 1px;
+  background-color: rgba(255, 255, 255, 0.65);
+  margin-top: 8px;
+}
+
+@media (max-width: 860px) {
+  .banner-strip {
+    grid-template-columns: 1fr;
+  }
+
+  .banner-tile {
+    height: 150px;
+  }
+}
+

@@ -1,0 +1,453 @@
+/* ─────────────────────────────────────────────
+   HeroSlider / CategoryHero – sliding hero banner
+   ───────────────────────────────────────────── */
+
+.hero-slider,
+.category-hero {
+  width: 100%;
+  box-sizing: border-box;
+  position: relative;
+  background-color: #111111;
+  overflow: hidden;
+}
+
+.hero-slider-banner,
+.category-hero-banner {
+  position: relative;
+  width: 100%;
+  height: var(--hero-height);
+  overflow: hidden;
+  background-color: #111111;
+}
+
+/* ─────────────────────────────────────────────
+   Sliding track
+   The track is [clone-last][slide-0]…[slide-n-1][clone-first]
+   and sits inside a clipping overflow:hidden banner.
+   GPU-accelerated with will-change: transform.
+   ───────────────────────────────────────────── */
+.hero-slider-track,
+.category-hero-track {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  will-change: transform;
+  /* Default resting position: translateX(-100%) shows real slide 0 */
+  transform: translateX(-100%);
+  /* Transition is applied dynamically by JS using --hero-transition */
+  transition: transform var(--hero-transition);
+  cursor: grab;
+}
+
+.hero-slider-track:active,
+.category-hero-track:active {
+  cursor: grabbing;
+}
+
+/* Each slide is one full-width panel inside the flex track */
+.hero-slider-slide,
+.category-hero-slide {
+  flex: 0 0 100%;
+  width: 100%;
+  height: var(--hero-height);
+  position: relative;
+  pointer-events: none;
+}
+
+.hero-slider-slide.is-active,
+.category-hero-slide.is-active {
+  pointer-events: auto;
+}
+
+.hero-slider-image,
+.category-hero-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Dark left-to-right gradient overlay on every slide */
+.hero-slider-gradient,
+.category-hero-gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to right,
+    rgba(10, 10, 10, 0.82) 0%,
+    rgba(10, 10, 10, 0.62) 38%,
+    rgba(10, 10, 10, 0.22) 65%,
+    rgba(10, 10, 10, 0) 100%
+  );
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* Dark top gradient behind transparent header (~140 px) */
+.hero-slider-top-gradient,
+.category-hero-top-gradient {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 140px;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.45) 0%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  pointer-events: none;
+  z-index: 5;
+}
+
+/* RTL: mirror the left gradient to come from the right */
+[dir="rtl"] .hero-slider-gradient,
+[dir="rtl"] .category-hero-gradient {
+  background: linear-gradient(
+    to left,
+    rgba(10, 10, 10, 0.82) 0%,
+    rgba(10, 10, 10, 0.62) 38%,
+    rgba(10, 10, 10, 0.22) 65%,
+    rgba(10, 10, 10, 0) 100%
+  );
+}
+
+.hero-slider-content,
+.category-hero-content {
+  position: relative;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  height: 100%;
+  padding-top: var(--height-header, 64px);
+  padding-inline-start: 48px;
+  padding-inline-end: 24px;
+  max-width: 530px;
+  box-sizing: border-box;
+}
+
+/* White eyebrow */
+.hero-slider-eyebrow,
+.category-hero-eyebrow {
+  font-family: var(--font-body);
+  font-size: var(--font-size-eyebrow, 11px);
+  font-weight: var(--fw-medium, 500);
+  letter-spacing: var(--tracking-eyebrow, 0.14em);
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.85);
+  margin-bottom: 14px;
+}
+
+/* White headline */
+.hero-slider-title,
+.category-hero-title {
+  font-family: var(--font-headline);
+  font-size: clamp(32px, 5.5vw, 64px);
+  font-weight: var(--fw-medium, 500);
+  line-height: 1.05;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+  margin: 0 0 18px 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* White description */
+.hero-slider-description,
+.category-hero-description {
+  font-family: var(--font-body);
+  font-size: clamp(12.5px, 1.4vw, 14.5px);
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.85);
+  margin: 0 0 26px 0;
+  max-width: 380px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ─────────────────────────────────────────────
+   CTA Button – fully rounded pill shape
+   ───────────────────────────────────────────── */
+.hero-slider-button,
+.category-hero-button {
+  background-color: var(--color-btn-hero-bg, #ffffff);
+  color: var(--color-btn-hero-text, #111111);
+  font-family: var(--font-body);
+  font-size: var(--font-size-btn, 11px);
+  font-weight: var(--fw-medium, 500);
+  letter-spacing: var(--tracking-btn, 0.12em);
+  text-transform: uppercase;
+  padding: 12px 28px;
+  border: 1px solid var(--color-btn-hero-bg, #ffffff);
+  border-radius: var(--radius-pill, 999px);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.2s ease, color 0.2s ease, opacity 0.2s ease;
+}
+
+.hero-slider-button:hover,
+.category-hero-button:hover {
+  background-color: #f0f0f0;
+  color: #000000;
+}
+
+.hero-slider-button:focus,
+.category-hero-button:focus {
+  outline: none;
+}
+
+.hero-slider-button:focus-visible,
+.category-hero-button:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 3px;
+}
+
+/* ─────────────────────────────────────────────
+   Manual Controls – Pill Container
+   Centered horizontally 24px above bottom edge
+   using logical properties (inset-inline & margin-inline).
+   Layout: inline-flex, align-items center, gap 8px,
+   height 22px, padding 0 10px, border-radius 999px,
+   background rgba(210, 210, 210, 0.55), backdrop-filter blur(6px),
+   1px border rgba(255, 255, 255, 0.45). No shadow.
+   ───────────────────────────────────────────── */
+.hero-slider-controls,
+.category-hero-controls,
+.hero-slider-indicators,
+.category-hero-indicators {
+  position: absolute;
+  bottom: 24px;
+  inset-inline: 0;
+  inset-inline-start: 0;
+  inset-inline-end: 0;
+  margin-inline: auto;
+  margin-inline-start: auto;
+  margin-inline-end: auto;
+  width: fit-content;
+  width: max-content;
+  z-index: 10;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 18px;
+  padding: 0 10px;
+  padding-block: 0;
+  padding-inline: 10px;
+  border-radius: 999px;
+  background: rgba(210, 210, 210, 0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  box-shadow: none;
+  box-sizing: border-box;
+  user-select: none;
+}
+
+/* ─────────────────────────────────────────────
+   Round Dot Indicator Buttons
+   One round button per slide: 7px circle,
+   inactive color rgba(30, 30, 30, 0.75);
+   active is white, 9px, with a smooth 300ms transition.
+   Touch area via ::after, visible :focus-visible outline.
+   ───────────────────────────────────────────── */
+.hero-slider-indicator-btn,
+.category-hero-indicator-btn,
+.hero-slider-dot,
+.category-hero-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  border: none;
+  padding: 0;
+  margin: 0;
+  line-height: 0;
+  font-size: 0;
+  background-color: rgba(30, 30, 30, 0.75);
+  cursor: pointer;
+  position: relative;
+  flex-shrink: 0;
+  transition: width 300ms ease, height 300ms ease, background-color 300ms ease;
+  box-sizing: border-box;
+}
+
+.hero-slider-indicator-btn.is-active,
+.category-hero-indicator-btn.is-active,
+.hero-slider-dot.is-active,
+.category-hero-dot.is-active {
+  width: 9px;
+  height: 9px;
+  background-color: #ffffff;
+}
+
+/* Touch area via ::after - bounded to avoid overlapping neighboring dots */
+.hero-slider-indicator-btn::after,
+.category-hero-indicator-btn::after,
+.hero-slider-dot::after,
+.category-hero-dot::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 15px;
+  height: 22px;
+  border-radius: 999px;
+}
+
+.hero-slider-indicator-btn:focus,
+.category-hero-indicator-btn:focus,
+.hero-slider-dot:focus,
+.category-hero-dot:focus {
+  outline: none;
+}
+
+.hero-slider-indicator-btn:focus-visible,
+.category-hero-indicator-btn:focus-visible,
+.hero-slider-dot:focus-visible,
+.category-hero-dot:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 3px;
+}
+
+/* ─────────────────────────────────────────────
+   Prefers Reduced Motion
+   Use 200ms instant transition; disable auto-play
+   is handled in JS via the prefersReducedMotion flag.
+   ───────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .hero-slider-track,
+  .category-hero-track {
+    transition: transform 200ms linear !important;
+  }
+
+  .hero-slider-indicator-btn,
+  .category-hero-indicator-btn,
+  .hero-slider-dot,
+  .category-hero-dot,
+  .hero-slider-indicator,
+  .category-hero-indicator {
+    transition: none !important;
+  }
+}
+
+/* ─────────────────────────────────────────────
+   Tablet (768px – 1024px)
+   ───────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .hero-slider-content,
+  .category-hero-content {
+    max-width: 520px;
+  }
+
+  .hero-slider-title,
+  .category-hero-title {
+    margin-bottom: 16px;
+  }
+
+  .hero-slider-description,
+  .category-hero-description {
+    margin-bottom: 24px;
+  }
+}
+
+/* Below 860px */
+@media (max-width: 860px) {
+  .hero-slider-content,
+  .category-hero-content {
+    padding-inline-start: 24px;
+  }
+}
+
+/* ─────────────────────────────────────────────
+   Screens below 768px
+   ───────────────────────────────────────────── */
+@media (max-width: 767.98px) {
+  .hero-slider-banner,
+  .category-hero-banner,
+  .hero-slider-slide,
+  .category-hero-slide {
+    height: var(--hero-height-mobile);
+  }
+}
+
+/* ─────────────────────────────────────────────
+   Mobile (under 640px)
+   ───────────────────────────────────────────── */
+@media (max-width: 639.98px) {
+  .hero-slider-gradient,
+  .category-hero-gradient {
+    background: linear-gradient(
+      to right,
+      rgba(10, 10, 10, 0.88) 0%,
+      rgba(10, 10, 10, 0.72) 45%,
+      rgba(10, 10, 10, 0.30) 70%,
+      rgba(10, 10, 10, 0) 100%
+    );
+  }
+
+  [dir="rtl"] .hero-slider-gradient,
+  [dir="rtl"] .category-hero-gradient {
+    background: linear-gradient(
+      to left,
+      rgba(10, 10, 10, 0.88) 0%,
+      rgba(10, 10, 10, 0.72) 45%,
+      rgba(10, 10, 10, 0.30) 70%,
+      rgba(10, 10, 10, 0) 100%
+    );
+  }
+
+  .hero-slider-content,
+  .category-hero-content {
+    padding-inline-start: 20px;
+    padding-inline-end: 16px;
+    max-width: 85%;
+  }
+
+  .hero-slider-eyebrow,
+  .category-hero-eyebrow {
+    font-size: 10.5px;
+    margin-bottom: 12px;
+  }
+
+  .hero-slider-title,
+  .category-hero-title {
+    font-size: clamp(28px, 8vw, 38px);
+    line-height: 1.08;
+    margin-bottom: 14px;
+  }
+
+  .hero-slider-description,
+  .category-hero-description {
+    font-size: 13px;
+    line-height: 1.45;
+    margin-bottom: 22px;
+  }
+
+  .hero-slider-button,
+  .category-hero-button {
+    padding: 12px 24px;
+    font-size: 10.5px;
+  }
+}
+
+/* ─────────────────────────────────────────────
+   Very small screens (400px and below)
+   ───────────────────────────────────────────── */
+@media (max-width: 400px) {
+  .hero-slider-content,
+  .category-hero-content {
+    padding-inline-start: 16px;
+  }
+}
+

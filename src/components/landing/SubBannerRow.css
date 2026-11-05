@@ -1,0 +1,389 @@
+:root {
+  --sub-banner-visible: 4;
+}
+
+@media (max-width: 1023px) {
+  :root {
+    --sub-banner-visible: 3;
+  }
+}
+
+@media (max-width: 639px) {
+  :root {
+    --sub-banner-visible: 2;
+  }
+}
+
+/* 1. LAYOUT: Section container */
+.sub-banner-row {
+  width: 100%;
+  max-width: 1400px;
+  margin-inline: auto;
+  padding-block: 40px;
+  padding-inline: 96px;
+  box-sizing: border-box;
+  background-color: #ffffff;
+  position: relative;
+  overflow: hidden; /* no horizontal page scroll */
+}
+
+@media (max-width: 1023px) {
+  .sub-banner-row {
+    padding-inline: 24px;
+  }
+}
+
+@media (max-width: 639px) {
+  .sub-banner-row {
+    padding-inline: 16px;
+  }
+}
+
+/* Optional Heading above carousel */
+.sub-banner-heading {
+  font-family: var(--font-headline, sans-serif);
+  font-weight: 800;
+  font-size: clamp(22px, 2.6vw, 32px);
+  text-transform: uppercase;
+  text-align: center;
+  letter-spacing: 0.05em;
+  color: #111111;
+  margin: 0 0 28px 0;
+  line-height: 1.2;
+}
+
+/* Carousel wrapper holding arrows and viewport */
+.sub-banner-carousel {
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Viewport clipping to single-row track */
+.sub-banner-viewport {
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+  box-sizing: border-box;
+}
+
+/* Single-row, non-wrapping track */
+.sub-banner-track {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  gap: 2px;
+  width: 100%;
+  box-sizing: border-box;
+  will-change: transform;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* 1 & 2. CARD: Aspect ratio, overlay, hover zoom */
+.sub-banner-card {
+  position: relative;
+  display: block;
+  flex-shrink: 0;
+  width: calc((100% - 2px * (var(--sub-banner-visible) - 1)) / var(--sub-banner-visible));
+  flex: 0 0 calc((100% - 2px * (var(--sub-banner-visible) - 1)) / var(--sub-banner-visible));
+  aspect-ratio: 3 / 5;
+  overflow: hidden;
+  border-radius: 0;
+  text-decoration: none;
+  background-color: #111111;
+  box-sizing: border-box;
+  touch-action: pan-y;
+  cursor: pointer;
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
+.sub-banner-card:focus-visible {
+  outline: 2px solid #000000;
+  outline-offset: 2px;
+}
+
+/* Image with slow 1.03 zoom on hover */
+.sub-banner-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  border-radius: 0;
+  border: none;
+  display: block;
+  pointer-events: none;
+  -webkit-user-drag: none;
+  user-select: none;
+  transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+  will-change: transform;
+}
+
+.sub-banner-card:hover .sub-banner-image {
+  transform: scale(1.03);
+}
+
+/* Dark overlay: rgba(0,0,0,0.35), lighter (0.2) on hover. No bottom gradient. */
+.sub-banner-overlay {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.35);
+  pointer-events: none;
+  transition: background-color 0.4s ease;
+  z-index: 1;
+}
+
+.sub-banner-card:hover .sub-banner-overlay {
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+/* Label: Centered H & V, white, uppercase, bold, letter-spacing 0.12em, 12px side padding */
+.sub-banner-label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  text-transform: uppercase;
+  font-family: var(--font-logo, var(--font-body, sans-serif));
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  font-size: clamp(14px, 1.6vw, 22px);
+  text-align: center;
+  padding-inline: 12px;
+  pointer-events: none;
+  z-index: 2;
+  box-sizing: border-box;
+  margin: 0;
+  line-height: 1.25;
+}
+
+/* Mobile responsive styles: 2 cards visible, 8px gap, 3:4 aspect ratio, titles clearly visible at bottom with dark gradient */
+@media (max-width: 639px) {
+  .sub-banner-viewport {
+    overflow: hidden;
+  }
+
+  .sub-banner-track {
+    gap: 8px;
+  }
+
+  .sub-banner-card {
+    aspect-ratio: 3 / 4;
+    width: calc((100% - 8px) / 2);
+    flex: 0 0 calc((100% - 8px) / 2);
+    min-width: calc((100% - 8px) / 2);
+    max-width: calc((100% - 8px) / 2);
+  }
+
+  .sub-banner-arrow {
+    display: none !important;
+  }
+
+  /* Subtle dark gradient behind the title at the bottom of the banner on mobile */
+  .sub-banner-overlay {
+    background: linear-gradient(
+      to top,
+      rgba(0, 0, 0, 0.75) 0%,
+      rgba(0, 0, 0, 0.4) 35%,
+      rgba(0, 0, 0, 0.08) 65%,
+      transparent 100%
+    );
+  }
+
+  .sub-banner-card:hover .sub-banner-overlay {
+    background: linear-gradient(
+      to top,
+      rgba(0, 0, 0, 0.75) 0%,
+      rgba(0, 0, 0, 0.4) 35%,
+      rgba(0, 0, 0, 0.08) 65%,
+      transparent 100%
+    );
+  }
+
+  /* Collection title clearly displayed at the bottom of the image */
+  .sub-banner-label {
+    inset: auto 0 0 0;
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    transform: none;
+    display: block;
+    text-align: center;
+    padding-block: 22px 10px;
+    padding-inline: 8px;
+    font-size: clamp(12px, 3.4vw, 14px);
+    font-weight: 800;
+    line-height: 1.25;
+    letter-spacing: 0.08em;
+    color: #ffffff;
+    background: linear-gradient(
+      to top,
+      rgba(0, 0, 0, 0.7) 0%,
+      rgba(0, 0, 0, 0.35) 60%,
+      transparent 100%
+    );
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8), 0 2px 6px rgba(0, 0, 0, 0.5);
+    box-sizing: border-box;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+    pointer-events: none;
+    z-index: 2;
+  }
+}
+
+/* 3. ARROWS: Two round buttons */
+.sub-banner-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
+  min-height: 42px;
+  border-radius: 50%;
+  background-color: #000000;
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  padding: 0;
+  transition: background-color 0.2s ease;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* 44px minimum hit area */
+.sub-banner-arrow::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.sub-banner-arrow:hover {
+  background-color: #222222;
+}
+
+.sub-banner-arrow:focus-visible {
+  outline: 2px solid #000000;
+  outline-offset: 2px;
+}
+
+/* Desktop: 25px from section left/right edge (in the 96px padding outside cards) */
+@media (min-width: 1024px) {
+  .sub-banner-arrow-prev {
+    inset-inline-start: -71px; /* 96px padding - 71px = 25px from section edge */
+  }
+
+  .sub-banner-arrow-next {
+    inset-inline-end: -71px; /* 96px padding - 71px = 25px from section edge */
+  }
+}
+
+/* Under 1024px: 36px size, overlay inside edges of first and last cards (inset 8px) */
+@media (max-width: 1023px) {
+  .sub-banner-arrow {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    min-height: 36px;
+  }
+
+  .sub-banner-arrow:focus-visible {
+    outline: 2px solid #ffffff;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px #000000;
+  }
+
+  .sub-banner-arrow-prev {
+    inset-inline-start: 8px;
+  }
+
+  .sub-banner-arrow-next {
+    inset-inline-end: 8px;
+  }
+}
+
+/* RTL support: arrows and movement direction mirror */
+[dir="rtl"] .sub-banner-arrow-prev svg,
+[dir="rtl"] .sub-banner-arrow-next svg {
+  transform: rotate(180deg);
+}
+
+/* 4. MANUAL DOTS UNDER THE CARDS (identical to Shop By Collections) */
+.sub-banner-dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-block-start: 20px;
+  padding: 0;
+  list-style: none;
+  box-sizing: border-box;
+}
+
+.sub-banner-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 4px;
+  background-color: #C9C9C9;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  position: relative;
+  transition: width 300ms ease, background-color 300ms ease;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  flex-shrink: 0;
+}
+
+.sub-banner-dot.is-active {
+  width: 20px;
+  background-color: #111111;
+}
+
+.sub-banner-dot:focus-visible {
+  outline: 2px solid #111111;
+  outline-offset: 2px;
+}
+
+/* 44px minimum hit area via ::after */
+.sub-banner-dot::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  min-width: 16px;
+  height: 44px;
+  min-height: 44px;
+}
+
+/* RTL support: dot order mirrors */
+[dir="rtl"] .sub-banner-dots {
+  flex-direction: row;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sub-banner-dot {
+    transition: none !important;
+  }
+}

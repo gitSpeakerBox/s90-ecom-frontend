@@ -1,0 +1,98 @@
+/* ── Quick Add Toast ────────────────────────────────────────────────────── */
+.quick-add-toast {
+  position: fixed;
+  bottom: 24px;
+  inset-inline-end: 24px;
+  z-index: 10005;
+  background-color: #111111;
+  color: #ffffff;
+  border-radius: 4px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  animation: quickAddToastIn 250ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes quickAddToastIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.quick-add-toast-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.quick-add-toast-check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background-color: #15803d;
+  color: #ffffff;
+}
+
+.quick-add-toast-text {
+  color: #ffffff;
+  white-space: nowrap;
+}
+
+.quick-add-toast-link {
+  color: #ffffff;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.15s ease;
+}
+
+.quick-add-toast-link:hover {
+  opacity: 0.8;
+}
+
+.quick-add-toast-close {
+  background: none;
+  border: none;
+  color: #a3a3a3;
+  cursor: pointer;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 2px;
+  transition: color 0.15s ease;
+}
+
+.quick-add-toast-close:hover {
+  color: #ffffff;
+}
+
+.quick-add-toast-close:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 1px;
+}
+
+@media (max-width: 640px) {
+  .quick-add-toast {
+    bottom: 16px;
+    inset-inline-start: 16px;
+    inset-inline-end: 16px;
+  }
+}
+

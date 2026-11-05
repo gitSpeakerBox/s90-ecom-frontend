@@ -1,0 +1,372 @@
+/* ── Cart Totals Block ───────────────────────────────────────────────── */
+.cart-totals-block {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+  box-sizing: border-box;
+  background-color: #ffffff;
+}
+
+/* ── Free Shipping Progress ──────────────────────────────────────────── */
+.cart-shipping-bar-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.cart-shipping-bar-text {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-text-main, #111111);
+  line-height: 1.3;
+}
+
+/* Thin 4px progress bar: dark fill on #E5E5E5 */
+.cart-shipping-progress-track {
+  width: 100%;
+  height: 4px;
+  background-color: #e5e5e5;
+  border-radius: 2px;
+  overflow: hidden;
+  position: relative;
+}
+
+.cart-shipping-progress-fill {
+  height: 100%;
+  background-color: var(--color-text-main, #111111);
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+/* ── Expandable Breakdown with 250ms height animation ─────────────────── */
+.cart-breakdown-panel {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-height 250ms cubic-bezier(0, 0, 0.2, 1),
+    opacity 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.cart-breakdown-panel--open {
+  max-height: 160px;
+  opacity: 1;
+}
+
+.cart-breakdown-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  background-color: #f9f9f9;
+  border-radius: 6px;
+  border: 1px solid var(--color-border-hairline, #e5e5e5);
+}
+
+.cart-breakdown-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: #555555;
+}
+
+.cart-breakdown-row--bold {
+  font-weight: 700;
+  color: var(--color-text-main, #111111);
+  border-top: 1px solid var(--color-border-hairline, #e5e5e5);
+  padding-top: 6px;
+  margin-top: 2px;
+}
+
+.cart-breakdown-free {
+  color: #15803d;
+  font-weight: 600;
+}
+
+/* ── Total Row for Page ──────────────────────────────────────────────── */
+.cart-total-main-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.cart-total-price-col {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cart-total-price-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Large total price: 22px bold */
+.cart-total-amount {
+  font-family: var(--font-body);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--color-text-main, #111111);
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+}
+
+/* Chevron button next to price with rotation */
+.cart-breakdown-toggle-btn {
+  background: none;
+  border: none;
+  padding: 2px;
+  color: var(--color-text-main, #111111);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: transform 250ms ease, background-color 0.15s ease;
+}
+
+.cart-breakdown-toggle-btn:hover {
+  background-color: #f0f0f0;
+}
+
+.cart-breakdown-toggle-btn--rotated {
+  transform: rotate(180deg);
+}
+
+/* Small grey text under it: "Inclusive of all taxes" */
+.cart-taxes-note {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 400;
+  color: #6b6b6b;
+  line-height: 1.2;
+}
+
+/* ── Checkout Button & View Cart Link ─────────────────────────────────── */
+.cart-actions-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+/* ── Drawer Variant Action Row & Sticky Footer Layout ─────────────────── */
+.cart-totals-block--drawer {
+  background-color: #ffffff;
+  gap: 0;
+}
+
+/* Free-shipping progress line keeps full width with 20px side padding */
+.cart-totals-block--drawer .cart-shipping-bar-container {
+  width: 100%;
+  padding-block-start: 16px;
+  padding-block-end: 0;
+  padding-inline: 20px;
+  box-sizing: border-box;
+}
+
+/* Expandable breakdown panel in drawer variant */
+.cart-totals-block--drawer .cart-breakdown-panel {
+  width: 100%;
+  padding-inline: 20px;
+  box-sizing: border-box;
+}
+
+.cart-totals-block--drawer .cart-breakdown-panel--open {
+  max-height: 200px;
+}
+
+.cart-totals-block--drawer .cart-breakdown-content {
+  margin-block-start: 12px;
+}
+
+/* 1. Footer row: display grid, grid-template-columns: minmax(0, 1fr) auto, align-items center, column-gap 16px, padding 16px 20px */
+.cart-drawer-action-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 16px;
+  padding-block: 16px;
+  padding-inline: 20px;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+/* 2. Left block (total) */
+.cart-drawer-action-row .cart-total-price-col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  min-width: 0;
+}
+
+[dir="rtl"] .cart-drawer-action-row .cart-total-price-col {
+  align-items: flex-start;
+}
+
+.cart-drawer-action-row .cart-total-price-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+/* Price: font-size 20px, font-weight 700, white-space: nowrap */
+.cart-drawer-action-row .cart-total-amount {
+  font-family: var(--font-body);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--color-text-main, #111111);
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+/* Small chevron breakdown button inline after it (28px square) */
+.cart-drawer-action-row .cart-breakdown-toggle-btn {
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  min-height: 28px;
+  max-width: 28px;
+  max-height: 28px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  border: none;
+  background: transparent;
+  color: var(--color-text-main, #111111);
+  cursor: pointer;
+  flex: none;
+  flex-shrink: 0;
+  transition: transform 250ms ease, background-color 0.15s ease;
+}
+
+.cart-drawer-action-row .cart-breakdown-toggle-btn:hover {
+  background-color: #f0f0f0;
+}
+
+.cart-drawer-action-row .cart-breakdown-toggle-btn--rotated {
+  transform: rotate(180deg);
+}
+
+/* "Inclusive of all taxes" (12px grey) under it */
+.cart-drawer-action-row .cart-taxes-note {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--color-text-muted, #6b6b6b);
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+/* 3. Checkout button: fixed width 150px (140px under 400px screens), height 48px, padding 0 16px, font-size 13px, letter-spacing 0.06em, uppercase, dark #111 with white text, never grow */
+.cart-drawer-checkout-btn,
+button.cart-checkout-btn.cart-drawer-checkout-btn {
+  width: 150px;
+  min-width: 150px;
+  max-width: 150px;
+  height: 48px;
+  min-height: 48px;
+  max-height: 48px;
+  padding-block: 0;
+  padding-inline: 16px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background-color: #111111;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  flex: none;
+  flex-grow: 0;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  white-space: nowrap;
+  user-select: none;
+  cursor: pointer;
+  transition: opacity 0.15s ease, background-color 0.15s ease;
+}
+
+.cart-drawer-checkout-btn:hover:not(:disabled):not(.cart-checkout-btn--disabled) {
+  background-color: #222222;
+}
+
+.cart-drawer-checkout-btn:disabled,
+.cart-drawer-checkout-btn.cart-checkout-btn--disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+@media (max-width: 400px) {
+  .cart-drawer-checkout-btn,
+  button.cart-checkout-btn.cart-drawer-checkout-btn {
+    width: 140px;
+    min-width: 140px;
+    max-width: 140px;
+  }
+}
+
+/* Full-width dark "Checkout" button (#111, white text, 52px) */
+.cart-checkout-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 52px;
+  background-color: #111111;
+  color: #ffffff;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-decoration: none;
+  border-radius: 4px;
+  box-sizing: border-box;
+  transition: opacity 0.15s ease, background-color 0.15s ease;
+  user-select: none;
+}
+
+.cart-checkout-btn:hover:not(.cart-checkout-btn--disabled) {
+  background-color: #222222;
+}
+
+.cart-checkout-btn--disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Small underlined "View cart" link */
+.cart-view-cart-link {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-text-main, #111111);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: opacity 0.15s ease;
+}
+
+.cart-view-cart-link:hover {
+  opacity: 0.7;
+}
+

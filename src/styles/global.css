@@ -1,0 +1,100 @@
+@import './variables.css';
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  font-family: var(--font-body);
+  font-weight: var(--fw-normal);
+  color: var(--color-text-main);
+  background-color: var(--color-bg-page);
+  min-height: 100vh;
+  line-height: 1.5;
+  overflow-x: hidden;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-text-main);
+  outline-offset: 2px;
+}
+
+/* ─── Arabic Typography & Direction ────────────────────────────────────────── */
+html[lang="ar"],
+[lang="ar"] {
+  font-family: var(--font-arabic-body);
+}
+
+html[lang="ar"] body {
+  font-family: var(--font-arabic-body);
+  line-height: 1.65;
+}
+
+/* Large headlines in Arabic */
+html[lang="ar"] h1,
+html[lang="ar"] h2,
+html[lang="ar"] h3,
+html[lang="ar"] .hero-title,
+html[lang="ar"] .category-hero-title,
+html[lang="ar"] .product-header-title,
+html[lang="ar"] .sub-banner-label,
+html[lang="ar"] .user-dropdown-name,
+html[lang="ar"] .catalog-placeholder-title,
+html[lang="ar"] .not-found-title,
+html[lang="ar"] .product-detail-title {
+  font-family: var(--font-arabic-headline);
+  letter-spacing: 0 !important;
+  line-height: 1.35;
+}
+
+/* Remove letter-spacing in Arabic to keep cursive Arabic glyph connections intact */
+html[lang="ar"] *,
+html[lang="ar"] *::before,
+html[lang="ar"] *::after {
+  letter-spacing: 0 !important;
+}
+
+/* Mirror directional icons and arrows in RTL */
+[dir="rtl"] .arrow-icon,
+[dir="rtl"] .btn-arrow,
+[dir="rtl"] .breadcrumb-separator,
+[dir="rtl"] .catalog-return-link svg {
+  transform: scaleX(-1);
+  display: inline-block;
+}
+

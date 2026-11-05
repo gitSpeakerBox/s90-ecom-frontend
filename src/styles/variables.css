@@ -1,0 +1,66 @@
+:root {
+  /* Typography */
+  --font-headline: "Cormorant Garamond", Georgia, serif;
+  --font-body: "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-nav: "Inter", "Plus Jakarta Sans", "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-logo: "Archivo", sans-serif;
+  --font-arabic-headline: "Amiri", "Noto Naskh Arabic", Georgia, serif;
+  --font-arabic-body: "IBM Plex Sans Arabic", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-arabic-nav: "IBM Plex Sans Arabic", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+  /* Font Weights */
+  --fw-light: 300;
+  --fw-normal: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+  --fw-black: 800;
+
+  /* Product card */
+  --color-product-bg: #F6F6F6;
+  --product-image-fit: cover;       /* object-fit for product card images – change here to affect all cards */
+
+  /* Colors */
+  --color-bg: #FFFFFF;
+  --color-announcement-bg: #141414;
+  --color-announcement-text: #ffffff;
+  --color-bg-page: #FFFFFF;
+  --color-bg-header: #FFFFFF;
+  --color-text-main: #111111;
+  --color-text-muted: #6B6B6B;
+  --color-text-light: #ffffff;
+  --color-border-hairline: #E5E5E5;
+  --color-btn-dark-bg: #111111;
+  --color-btn-dark-text: #ffffff;
+  --color-btn-hero-bg: #ffffff;
+  --color-btn-hero-text: #111111;
+  --color-gap-white: #ffffff;
+  --color-overlay-dark: rgba(0, 0, 0, 0.45);
+
+  /* Dimensions */
+  --height-announcement: 36px;
+  --height-header: 64px;
+  --height-hero: 480px;
+  --hero-height: clamp(560px, 80vh, 860px);
+  --hero-height-mobile: clamp(480px, 75svh, 640px);
+  --height-banner-strip: 165px;
+  --gap-banner: 4px;
+
+  /* Geometry & Shadows */
+  --radius-none: 0px;
+  --radius-pill: 999px;
+  --shadow-none: none;
+
+  /* Hero slider transition – duration + easing defined once here */
+  --hero-transition: 1200ms cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* Text transforms & tracking */
+  --tracking-eyebrow: 0.14em;
+  --tracking-nav: 0.08em;
+  --tracking-btn: 0.12em;
+  --tracking-logo: -0.02em;
+  --font-size-nav: 13px;
+  --font-size-mobile-nav: 15px;
+  --font-size-eyebrow: 11px;
+  --font-size-btn: 11px;
+}
