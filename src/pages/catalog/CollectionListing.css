@@ -1,0 +1,103 @@
+.collection-listing-page {
+  display: flex;
+  flex-direction: column;
+  flex: 1 0 auto;
+  width: 100%;
+  background-color: var(--color-bg, #FFFFFF);
+}
+
+.collection-listing-page .product-area-section {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.collection-listing-page .product-area-container {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding-block-end: 64px;
+}
+
+.collection-breadcrumb-wrapper {
+  width: 100%;
+  background-color: var(--color-bg, #ffffff);
+  padding: 20px var(--space-container-px, 24px) 0;
+  max-width: var(--max-content-width, 1440px);
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+.collection-breadcrumb {
+  margin-bottom: 8px;
+}
+
+.collection-breadcrumb-list {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: 2px;
+}
+
+.collection-breadcrumb-item {
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+  color: var(--color-text-muted, #888888);
+  font-family: var(--font-body, sans-serif);
+  letter-spacing: 0.03em;
+  text-transform: none;
+}
+
+.collection-breadcrumb-link {
+  color: var(--color-text-muted, #888888);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.collection-breadcrumb-link:hover {
+  color: var(--color-text, #111111);
+}
+
+.collection-breadcrumb-sep {
+  display: flex;
+  align-items: center;
+  color: var(--color-text-muted, #aaaaaa);
+  margin: 0 2px;
+}
+
+.collection-breadcrumb-current {
+  color: var(--color-text, #111111);
+  font-weight: 500;
+}
+
+.collection-heading {
+  font-family: var(--font-heading, 'Sequel100Black-85', sans-serif);
+  font-size: clamp(22px, 3.5vw, 36px);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--color-text, #111111);
+  margin: 0 0 4px;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+/* RTL */
+[dir='rtl'] .collection-breadcrumb-list {
+  flex-direction: row;
+}
+
+/* Responsive */
+@media (max-width: 639px) {
+  .collection-breadcrumb-wrapper {
+    padding: 16px 16px 0;
+  }
+  .collection-heading {
+    font-size: clamp(18px, 5vw, 26px);
+  }
+}
+
+

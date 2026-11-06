@@ -9,8 +9,11 @@
     "countries": {
       "SA": "المملكة العربية السعودية",
       "QA": "قطر",
+      "BH": "البحرين",
       "OM": "سلطنة عُمان",
       "AE": "الإمارات (دبي)",
+      "DE": "ألمانيا",
+      "FR": "فرنسا",
       "US": "الولايات المتحدة",
       "GB": "المملكة المتحدة"
     }
@@ -21,6 +24,7 @@
     "openSearch": "فتح البحث",
     "closeSearch": "إغلاق البحث",
     "clearSearch": "مسح البحث",
+    "noProductsFound": "لا توجد منتجات تطابق بحثك \"{{query}}\".",
     "customerAccountMenu": "قائمة حساب العميل",
     "accountOptions": "خيارات الحساب",
     "helloGuest": "مرحباً، زائرنا الكريم",
@@ -415,6 +419,7 @@
     "freeShipping": "مجاني",
     "viewDetails": "عرض التفاصيل",
     "backToOrders": "العودة إلى جميع الطلبات",
+    "back": "رجوع",
     "detailsTitle": "تفاصيل الطلب",
     "shippingAddress": "عنوان الشحن",
     "paymentMethod": "طريقة الدفع",

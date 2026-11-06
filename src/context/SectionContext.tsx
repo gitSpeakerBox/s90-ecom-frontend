@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useMemo } from 'react'
 import { useLocation } from 'react-router-dom'
 import { findProductBySlug } from '../services/productService'
+import { getCollectionBySlug } from '../data/collections'
 
 export type CatalogSection = 'jerseys' | 'shoes'
 
@@ -26,6 +27,15 @@ export function detectSectionFromPath(pathname: string): CatalogSection | null {
 
   if (normalized === '/shoes' || normalized.startsWith('/shoes/')) {
     return 'shoes'
+  }
+
+  if (normalized.startsWith('/collection/') || normalized.startsWith('/collections/')) {
+    const slug = normalized.replace(/^\/collections?\//, '').split('/')[0]
+    if (slug) {
+      const coll = getCollectionBySlug(slug)
+      if (coll?.type === 'jersey') return 'jerseys'
+      if (coll?.type === 'shoe') return 'shoes'
+    }
   }
 
   if (normalized.startsWith('/product/')) {

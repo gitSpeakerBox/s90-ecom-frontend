@@ -1,14 +1,52 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { createPortal } from 'react-dom'
-import { useNavigate } from 'react-router-dom'
-import { X } from 'lucide-react'
+import { Link, useNavigate } from 'react-router-dom'
+import { ShoppingBag, X } from 'lucide-react'
 import { useLocale } from '../../context/LocaleContext'
 import { useCart } from '../../context/CartContext'
 import { useCartDrawer } from '../../context/CartDrawerContext'
 import { CartItem } from './CartItem'
 import { CartTotalsBlock } from './CartTotalsBlock'
-import { CartEmptyState } from './CartEmptyState'
 import './CartDrawer.css'
+
+export interface CartEmptyStateProps {
+  onActionClick?: () => void
+}
+
+export const CartEmptyState: React.FC<CartEmptyStateProps> = ({
+  onActionClick,
+}) => {
+  const { t } = useLocale()
+
+  return (
+    <div className="cart-empty-state">
+      <div className="cart-empty-icon-wrap" aria-hidden="true">
+        <ShoppingBag size={56} strokeWidth={1.2} />
+      </div>
+
+      <h3 className="cart-empty-title">
+        {t('cart.emptyTitle', { defaultValue: 'Your cart is empty' })}
+      </h3>
+
+      <div className="cart-empty-actions">
+        <Link
+          to="/jerseys"
+          className="cart-empty-btn"
+          onClick={onActionClick}
+        >
+          {t('cart.shopJerseys', { defaultValue: 'Shop Jerseys' })}
+        </Link>
+        <Link
+          to="/shoes"
+          className="cart-empty-btn"
+          onClick={onActionClick}
+        >
+          {t('cart.shopShoes', { defaultValue: 'Shop Shoes' })}
+        </Link>
+      </div>
+    </div>
+  )
+}
 
 export const CartDrawer: React.FC = () => {
   const { t } = useLocale()
@@ -219,4 +257,3 @@ export const CartDrawer: React.FC = () => {
     document.body
   )
 }
-

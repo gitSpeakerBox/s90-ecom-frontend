@@ -1,23 +1,25 @@
-import { useState, useEffect, useRef } from 'react'
-import { NavLink, Link, useLocation } from 'react-router-dom'
+import { useState, useEffect, useRef, useMemo } from 'react'
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import {
-  Search,
-  User,
   Heart,
   ShoppingBag,
   Menu,
   X,
+  Search,
+  User,
   ChevronDown,
   Check,
 } from 'lucide-react'
 import { Logo } from '../common/Logo'
 import { TopBar } from './TopBar'
+import { ProductCard } from '../products/ProductCard'
 import { useAuth } from '../../context/AuthContext'
 import { useLocale } from '../../context/LocaleContext'
 import { useSection } from '../../context/SectionContext'
 import { useCart } from '../../context/CartContext'
 import { useCartDrawer } from '../../context/CartDrawerContext'
 import { useWishlist } from '../../context/WishlistContext'
+import { searchProducts } from '../../services/productService'
 import { COLLECTIONS_DATA } from '../../data/collections'
 import { getNavLinks } from './navConfig'
 import type { NavItem } from './navConfig'
@@ -34,10 +36,10 @@ export const Header = ({ hasHero: propHasHero }: HeaderProps = {}) => {
   const [userMenuOpen, setUserMenuOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
-  const [drawerCountryOpen, setDrawerCountryOpen] = useState(false)
   const [countryDropdownOpen, setCountryDropdownOpen] = useState(false)
   const [collectionsOpen, setCollectionsOpen] = useState(false)
   const [mobileCollectionsOpen, setMobileCollectionsOpen] = useState(false)
+  const [drawerCountryOpen, setDrawerCountryOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(
     () => typeof window !== 'undefined' && window.scrollY > 60
   )
@@ -49,8 +51,14 @@ export const Header = ({ hasHero: propHasHero }: HeaderProps = {}) => {
   const { openCartDrawer } = useCartDrawer()
   const { wishlistCount } = useWishlist()
   const location = useLocation()
+  const navigate = useNavigate()
   const normalizedPath = location.pathname.replace(/\/+$/, '') || '/'
   const hasHero = propHasHero ?? HERO_ROUTES.has(normalizedPath)
+
+  const matchingProducts = useMemo(
+    () => searchProducts(searchQuery, language),
+    [searchQuery, language]
+  )
 
   const userMenuRef = useRef<HTMLDivElement>(null)
   const searchRef = useRef<HTMLDivElement>(null)
@@ -90,6 +98,7 @@ export const Header = ({ hasHero: propHasHero }: HeaderProps = {}) => {
     setMobileMenuOpen(false)
     setUserMenuOpen(false)
     setSearchOpen(false)
+    setSearchQuery('')
     setCollectionsOpen(false)
     setCountryDropdownOpen(false)
     setIsScrolled(typeof window !== 'undefined' && window.scrollY > 60)
@@ -102,20 +111,13 @@ export const Header = ({ hasHero: propHasHero }: HeaderProps = {}) => {
     }
   }, [searchOpen])
 
-  // Clear timers on unmount
-  useEffect(() => {
-    return () => {
-      if (openTimerRef.current) clearTimeout(openTimerRef.current)
-      if (closeTimerRef.current) clearTimeout(closeTimerRef.current)
-    }
-  }, [])
-
   // Handle outside click and Escape for dropdowns
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         setUserMenuOpen(false)
         setSearchOpen(false)
+        setSearchQuery('')
         setMobileMenuOpen(false)
         setCollectionsOpen(false)
       }
@@ -132,13 +134,14 @@ export const Header = ({ hasHero: propHasHero }: HeaderProps = {}) => {
         searchRef.current &&
         !searchRef.current.contains(e.target as Node)
       ) {
-        setSearchOpen(false)
-      }
-      if (
-        collectionsRef.current &&
-        !collectionsRef.current.contains(e.target as Node)
-      ) {
-        setCollectionsOpen(false)
+        const target = e.target as HTMLElement
+        if (
+          !target.closest?.('.quick-add-portal') &&
+          !target.closest?.('.quick-add-toast-portal')
+        ) {
+          setSearchOpen(false)
+          setSearchQuery('')
+        }
       }
     }
 
@@ -218,7 +221,10 @@ export const Header = ({ hasHero: propHasHero }: HeaderProps = {}) => {
       e.preventDefault()
       setCollectionsOpen(false)
       collectionsTriggerRef.current?.focus()
-    } else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+    } else if (
+      e.key === 'ArrowRight' || e.key === 'ArrowLeft' ||
+      e.key === 'ArrowDown' || e.key === 'ArrowUp'
+    ) {
       e.preventDefault()
       const links = Array.from(
         collectionsRef.current?.querySelectorAll<HTMLAnchorElement>('.collections-link') || []
@@ -226,13 +232,76 @@ export const Header = ({ hasHero: propHasHero }: HeaderProps = {}) => {
       if (links.length === 0) return
       const activeEl = document.activeElement as HTMLAnchorElement
       const currentIndex = links.indexOf(activeEl)
-      if (e.key === 'ArrowDown') {
+      const isForward = e.key === 'ArrowRight' || e.key === 'ArrowDown'
+      if (isForward) {
         const nextIndex = (currentIndex + 1) % links.length
         links[nextIndex]?.focus()
       } else {
         const prevIndex = (currentIndex - 1 + links.length) % links.length
         links[prevIndex]?.focus()
       }
+    }
+  }
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (matchingProducts.length > 0) {
+      const topMatch = matchingProducts[0]
+      setSearchOpen(false)
+      setSearchQuery('')
+      navigate(`/product/${topMatch.slug}`)
+    }
+  }
+
+  const handleClearSearch = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setSearchQuery('')
+    searchInputRef.current?.focus()
+  }
+
+  const handleResultClick = () => {
+    setSearchOpen(false)
+    setSearchQuery('')
+  }
+
+  const handleCardClick = (slug: string, e: React.MouseEvent) => {
+    const target = e.target as HTMLElement
+    // If the click was on an action button (wishlist or quick add), let the button handle it
+    if (target.closest('button')) return
+    setSearchOpen(false)
+    setSearchQuery('')
+    navigate(`/product/${slug}`)
+  }
+
+  const handleToggleSearch = () => {
+    setSearchOpen((prev) => {
+      const next = !prev
+      if (next) {
+        setUserMenuOpen(false)
+        setCollectionsOpen(false)
+        setMobileMenuOpen(false)
+      } else {
+        setSearchQuery('')
+      }
+      return next
+    })
+  }
+
+  const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'ArrowDown') {
+      e.preventDefault()
+      const firstResult = searchRef.current?.querySelector<HTMLAnchorElement>('.product-card-link-hitbox')
+      firstResult?.focus()
+    }
+  }
+
+  const handleResultsKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === 'Escape') {
+      e.preventDefault()
+      setSearchOpen(false)
+      setSearchQuery('')
+      searchInputRef.current?.focus()
     }
   }
 
@@ -263,14 +332,6 @@ export const Header = ({ hasHero: propHasHero }: HeaderProps = {}) => {
       )
     }
     return false
-  }
-
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (searchQuery.trim()) {
-      setSearchOpen(false)
-      setSearchQuery('')
-    }
   }
 
   // Derive nav links based on route and active section
@@ -337,23 +398,22 @@ export const Header = ({ hasHero: propHasHero }: HeaderProps = {}) => {
 
                   {collectionsOpen && (
                     <div
-                      className="collections-dropdown-panel single-column"
+                      className="collections-megabar"
                       role="menu"
                       aria-label={t('nav.collections')}
                       onKeyDown={handleCollectionsPanelKeyDown}
+                      onMouseEnter={handleCollectionsMouseEnter}
+                      onMouseLeave={handleCollectionsMouseLeave}
                     >
-                      {/* Group 1: Jerseys */}
-                      {activeSection === 'jerseys' && (
-                        <div className="collections-group" role="none">
-                          <div className="collections-group-heading">
-                            {t(COLLECTIONS_DATA.jerseys.titleKey)}
-                          </div>
-                          <ul className="collections-list" role="none">
+                      <div className="collections-megabar-inner">
+                        {/* Jerseys horizontal row */}
+                        {activeSection === 'jerseys' && (
+                          <ul className="collections-megabar-list" role="none">
                             {COLLECTIONS_DATA.jerseys.items.map((cItem) => (
-                              <li key={cItem.id} className="collections-item" role="none">
+                              <li key={cItem.id} className="collections-megabar-item" role="none">
                                 <Link
                                   to={cItem.link}
-                                  className="collections-link"
+                                  className="collections-megabar-link collections-link"
                                   role="menuitem"
                                   onClick={() => setCollectionsOpen(false)}
                                 >
@@ -361,32 +421,17 @@ export const Header = ({ hasHero: propHasHero }: HeaderProps = {}) => {
                                 </Link>
                               </li>
                             ))}
-                            <li className="collections-item collections-view-all-item" role="none">
-                              <Link
-                                to={COLLECTIONS_DATA.jerseys.viewAllLink}
-                                className="collections-link collections-view-all-link"
-                                role="menuitem"
-                                onClick={() => setCollectionsOpen(false)}
-                              >
-                                {t(COLLECTIONS_DATA.jerseys.viewAllKey)} →
-                              </Link>
-                            </li>
                           </ul>
-                        </div>
-                      )}
+                        )}
 
-                      {/* Group 2: Shoes */}
-                      {activeSection === 'shoes' && (
-                        <div className="collections-group" role="none">
-                          <div className="collections-group-heading">
-                            {t(COLLECTIONS_DATA.shoes.titleKey)}
-                          </div>
-                          <ul className="collections-list" role="none">
+                        {/* Shoes horizontal row */}
+                        {activeSection === 'shoes' && (
+                          <ul className="collections-megabar-list" role="none">
                             {COLLECTIONS_DATA.shoes.items.map((cItem) => (
-                              <li key={cItem.id} className="collections-item" role="none">
+                              <li key={cItem.id} className="collections-megabar-item" role="none">
                                 <Link
                                   to={cItem.link}
-                                  className="collections-link"
+                                  className="collections-megabar-link collections-link"
                                   role="menuitem"
                                   onClick={() => setCollectionsOpen(false)}
                                 >
@@ -394,19 +439,9 @@ export const Header = ({ hasHero: propHasHero }: HeaderProps = {}) => {
                                 </Link>
                               </li>
                             ))}
-                            <li className="collections-item collections-view-all-item" role="none">
-                              <Link
-                                to={COLLECTIONS_DATA.shoes.viewAllLink}
-                                className="collections-link collections-view-all-link"
-                                role="menuitem"
-                                onClick={() => setCollectionsOpen(false)}
-                              >
-                                {t(COLLECTIONS_DATA.shoes.viewAllKey)} →
-                              </Link>
-                            </li>
                           </ul>
-                        </div>
-                      )}
+                        )}
+                      </div>
                     </div>
                   )}
                 </div>
@@ -435,7 +470,7 @@ export const Header = ({ hasHero: propHasHero }: HeaderProps = {}) => {
               className={`header-icon-btn ${searchOpen ? 'active' : ''}`}
               aria-label={searchOpen ? t('header.closeSearch') : t('header.openSearch')}
               aria-expanded={searchOpen}
-              onClick={() => setSearchOpen((prev) => !prev)}
+              onClick={handleToggleSearch}
             >
               {searchOpen ? (
                 <X size={19} strokeWidth={1.5} />
@@ -445,34 +480,109 @@ export const Header = ({ hasHero: propHasHero }: HeaderProps = {}) => {
             </button>
 
             {searchOpen && (
-              <form
-                className="header-search-overlay"
-                onSubmit={handleSearchSubmit}
-                role="search"
-              >
-                <div className="search-input-wrapper">
-                  <Search size={16} strokeWidth={1.5} className="search-input-icon" />
-                  <input
-                    ref={searchInputRef}
-                    type="search"
-                    className="search-input"
-                    placeholder={t('header.searchPlaceholder')}
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    aria-label={t('header.searchItems')}
-                  />
-                  {searchQuery && (
-                    <button
-                      type="button"
-                      className="search-clear-btn"
-                      onClick={() => setSearchQuery('')}
-                      aria-label={t('header.clearSearch')}
+              <>
+                <div
+                  className="header-search-backdrop"
+                  onClick={handleToggleSearch}
+                  aria-hidden="true"
+                />
+                <div
+                  className="header-search-overlay"
+                  role="dialog"
+                  aria-label={t('header.searchItems')}
+                >
+                  <form
+                    className="search-form"
+                    onSubmit={handleSearchSubmit}
+                    role="search"
+                  >
+                    <div className="search-input-wrapper">
+                      <Search size={16} strokeWidth={1.5} className="search-input-icon" aria-hidden="true" />
+                      <input
+                        ref={searchInputRef}
+                        type="search"
+                        className="search-input"
+                        placeholder={t('header.searchPlaceholder')}
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        onKeyDown={handleInputKeyDown}
+                        aria-label={t('header.searchItems')}
+                        autoComplete="off"
+                      />
+                      {searchQuery && (
+                        <button
+                          type="button"
+                          className="search-clear-btn"
+                          onClick={handleClearSearch}
+                          aria-label={t('header.clearSearch')}
+                        >
+                          <X size={14} />
+                        </button>
+                      )}
+                    </div>
+                  </form>
+
+                  {/* Dynamic search results grid */}
+                  {searchQuery.trim().length > 0 && (
+                    <div
+                      className="search-results-container"
+                      role="region"
+                      aria-live="polite"
+                      onKeyDown={handleResultsKeyDown}
                     >
-                      <X size={14} />
-                    </button>
+                      {matchingProducts.length > 0 ? (
+                        <>
+                          <div className="search-results-header">
+                            <span className="search-results-count">
+                              {t('filters.productCount', {
+                                count: matchingProducts.length,
+                                defaultValue: `${matchingProducts.length} ${
+                                  matchingProducts.length === 1 ? 'product' : 'products'
+                                }`,
+                              })}
+                            </span>
+                          </div>
+                          <div className="search-results-grid" role="list">
+                            {matchingProducts.map((product) => (
+                              <div
+                                key={product.id || product._id || product.slug}
+                                className="search-results-grid-item"
+                                role="listitem"
+                                onClick={(e) => handleCardClick(product.slug, e)}
+                              >
+                                <ProductCard
+                                  product={product}
+                                  onNavigate={handleResultClick}
+                                />
+                              </div>
+                            ))}
+                          </div>
+                        </>
+                      ) : (
+                        <div className="search-no-results">
+                          <Search
+                            size={32}
+                            strokeWidth={1.2}
+                            className="search-no-results-icon"
+                            aria-hidden="true"
+                          />
+                          <p className="search-no-results-title">
+                            {t('header.noProductsFound', {
+                              query: searchQuery,
+                              defaultValue: `No products found for "${searchQuery}"`,
+                            })}
+                          </p>
+                          <p className="search-no-results-hint">
+                            {language === 'ar'
+                              ? 'جرّب البحث بكلمات أخرى أو تحقق من كتابة الكلمة'
+                              : 'Try searching with different keywords or check your spelling'}
+                          </p>
+                        </div>
+                      )}
+                    </div>
                   )}
                 </div>
-              </form>
+              </>
             )}
           </div>
 
@@ -570,7 +680,7 @@ export const Header = ({ hasHero: propHasHero }: HeaderProps = {}) => {
         </div>
       </header>
 
-      {/* Mobile Menu Panel - Rendered only when open */}
+      {/* Mobile Menu Panel */}
       {mobileMenuOpen && (
         <div className="mobile-nav-container">
           <div

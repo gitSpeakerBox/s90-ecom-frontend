@@ -1,6 +1,17 @@
 import type { Product, JerseyProduct, ShoeProduct } from '../types/product'
-import { allJerseys, allShoes } from '../data/products/catalogData'
+import { allJerseys, allShoes, allProducts, getProductBySlug, getProductById } from '../data/products'
 import { arabicProductTranslations } from '../data/translations'
+
+export { allJerseys, allShoes, allProducts } from '../data/products'
+
+/**
+ * Returns the full catalog product array for a given type.
+ * Use this in page components and hooks instead of importing
+ * directly from catalogData or jerseys/shoes data files.
+ */
+export function getCatalogProducts(type: 'jersey' | 'shoe'): Product[] {
+  return type === 'jersey' ? allJerseys : allShoes
+}
 
 export interface ProductFilterOptions {
   category?: string
@@ -39,22 +50,22 @@ function filterJersey(item: JerseyProduct, filters: ProductFilterOptions = {}): 
   if (filters.category && filters.category !== 'all') {
     const cat = filters.category.toLowerCase().trim()
     const allItemCategories = (item.categories || [item.category]).map((c) => c.toLowerCase())
-    if (cat === 'club') {
+    if (cat === 'club' || cat === 'club-jerseys' || cat === 'club jerseys') {
       const match = allItemCategories.some((c) => c.includes('club'))
       if (!match) return false
-    } else if (cat === 'national') {
+    } else if (cat === 'national' || cat === 'national-jerseys' || cat === 'national-teams' || cat === 'national team jerseys') {
       const match = allItemCategories.some((c) => c.includes('national'))
       if (!match) return false
-    } else if (cat === 'retro') {
+    } else if (cat === 'retro' || cat === 'retro-jerseys' || cat === 'retro-classic' || cat === 'retro jerseys' || cat === 'retro & classic') {
       const match = allItemCategories.some((c) => c.includes('retro'))
       if (!match) return false
-    } else if (cat === 'kids') {
+    } else if (cat === 'kids' || cat === 'kids-jerseys' || cat === 'kids jerseys') {
       const match =
         item.name.toLowerCase().includes('kids') ||
         allItemCategories.some((c) => c.includes('kid')) ||
         (item.team && item.team.toLowerCase().includes('kids'))
       if (!match) return false
-    } else if (cat === 'special' || cat === 'special-collections' || cat === 'limited') {
+    } else if (cat === 'special' || cat === 'special-collections' || cat === 'special-editions' || cat === 'limited') {
       const match =
         allItemCategories.some((c) => c.includes('special') || c.includes('limited')) ||
         item.name.toLowerCase().includes('special') ||
@@ -62,8 +73,41 @@ function filterJersey(item: JerseyProduct, filters: ProductFilterOptions = {}): 
         item.name.toLowerCase().includes('edition') ||
         Boolean(item.isFeatured || item.featured)
       if (!match) return false
+    } else if (cat === 'new-season' || cat === 'new-season-jerseys' || cat === 'new season') {
+      const match =
+        item.name.toLowerCase().includes('2024') ||
+        item.name.toLowerCase().includes('24/25') ||
+        item.description.toLowerCase().includes('2024') ||
+        item.badges?.some((b) => b.toLowerCase().includes('new')) ||
+        Boolean(item.isFeatured || item.featured)
+      if (!match) return false
+    } else if (cat === 'training' || cat === 'training-kits' || cat === 'training-jerseys' || cat === 'training jerseys') {
+      const match = allItemCategories.some((c) => c.includes('training')) || item.name.toLowerCase().includes('training')
+      if (!match) return false
+    } else if (cat === 'matchday' || cat === 'matchday-jerseys') {
+      const match =
+        allItemCategories.some((c) => c.includes('match')) ||
+        item.name.toLowerCase().includes('match') ||
+        item.description.toLowerCase().includes('match')
+      if (!match) return false
+    } else if (cat === 'heritage' || cat === 'heritage-jerseys') {
+      const match =
+        allItemCategories.some((c) => c.includes('heritage')) ||
+        item.name.toLowerCase().includes('heritage') ||
+        item.description.toLowerCase().includes('heritage')
+      if (!match) return false
+    } else if (cat === 'goalkeeper' || cat === 'goalkeeper-jerseys') {
+      const match =
+        allItemCategories.some((c) => c.includes('keeper') || c.includes('goal')) ||
+        item.name.toLowerCase().includes('keeper') ||
+        item.description.toLowerCase().includes('keeper')
+      if (!match) return false
     } else {
-      const match = allItemCategories.some((c) => c.includes(cat)) || item.name.toLowerCase().includes(cat)
+      const normalizedCat = cat.replace(/-jerseys$/, '').replace(/-kits$/, '')
+      const match =
+        allItemCategories.some((c) => c.includes(cat) || c.includes(normalizedCat)) ||
+        item.name.toLowerCase().includes(cat) ||
+        item.name.toLowerCase().includes(normalizedCat)
       if (!match) return false
     }
   }
@@ -148,21 +192,48 @@ function filterShoe(item: ShoeProduct, filters: ProductFilterOptions = {}): bool
   if (filters.category && filters.category !== 'all') {
     const cat = filters.category.toLowerCase().trim()
     const allItemCategories = (item.categories || [item.category]).map((c) => c.toLowerCase())
-    if (cat === 'casual') {
+    if (cat === 'casual' || cat === 'casual-shoes' || cat === 'casual shoes' || cat === 'urban' || cat === 'urban-casual') {
       if (!allItemCategories.some((c) => c.includes('casual'))) return false
-    } else if (cat === 'formal') {
+    } else if (cat === 'formal' || cat === 'formal-shoes' || cat === 'formal shoes') {
       if (!allItemCategories.some((c) => c.includes('formal'))) return false
-    } else if (cat === 'sneakers') {
+    } else if (cat === 'sneakers' || cat === 'casual-sneakers' || cat === 'shoes-sneakers') {
       if (!allItemCategories.some((c) => c.includes('sneaker'))) return false
-    } else if (cat === 'loafers') {
+    } else if (cat === 'loafers' || cat === 'luxury-loafers' || cat === 'shoes-loafers') {
       if (!allItemCategories.some((c) => c.includes('loafer'))) return false
-    } else if (cat === 'new-arrivals') {
+    } else if (cat === 'leather' || cat === 'leather-shoes' || cat === 'leather-classics' || cat === 'leather classics' || cat === 'shoes-leather') {
+      if (!allItemCategories.some((c) => c.includes('leather'))) return false
+    } else if (cat === 'new-arrivals' || cat === 'new-arrivals-shoes' || cat === 'shoes-new-arrivals') {
       const isNew =
         Boolean(item.badges?.some((b) => b.toLowerCase().includes('new'))) ||
         Boolean(item.isFeatured || item.featured)
       if (!isNew) return false
+    } else if (cat === 'minimalist' || cat === 'minimalist-shoes') {
+      const match =
+        allItemCategories.some((c) => c.includes('minimal')) ||
+        item.name.toLowerCase().includes('minimal') ||
+        item.description.toLowerCase().includes('minimal')
+      if (!match) return false
+    } else if (cat === 'running' || cat === 'running-shoes') {
+      const match =
+        allItemCategories.some((c) => c.includes('run')) ||
+        item.name.toLowerCase().includes('run') ||
+        item.description.toLowerCase().includes('run')
+      if (!match) return false
+    } else if (cat === 'boots') {
+      const match =
+        allItemCategories.some((c) => c.includes('boot')) ||
+        item.name.toLowerCase().includes('boot') ||
+        item.description.toLowerCase().includes('boot')
+      if (!match) return false
     } else {
-      if (!allItemCategories.some((c) => c.includes(cat)) && !item.name.toLowerCase().includes(cat)) return false
+      const normalizedCat = cat.replace(/-shoes$/, '')
+      if (
+        !allItemCategories.some((c) => c.includes(cat) || c.includes(normalizedCat)) &&
+        !item.name.toLowerCase().includes(cat) &&
+        !item.name.toLowerCase().includes(normalizedCat)
+      ) {
+        return false
+      }
     }
   }
 
@@ -324,10 +395,172 @@ export function getPaginatedProducts(
 
 
 /**
+ * Combined and deduplicated list of all products across the catalog.
+ * Used by search and findProductBySlug.
+ */
+export const allSearchableProducts: Product[] = allProducts
+
+/**
  * Find single product across both catalog datasets by slug
  */
 export function findProductBySlug(slug: string): Product | undefined {
-  return [...allJerseys, ...allShoes].find((p) => p.slug === slug)
+  return getProductBySlug(slug)
+}
+
+/**
+ * Find single product across both catalog datasets by unique ID
+ */
+export function findProductById(id: string): Product | undefined {
+  return getProductById(id)
+}
+
+/**
+ * Normalize string for search: lowercase, remove accents, normalize Arabic alef, teh marbuta, etc.
+ */
+export function normalizeSearchText(text: string): string {
+  if (!text) return ''
+  return text
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[\u064B-\u065F\u0670]/g, '')
+    .replace(/[أإآٱ]/g, 'ا')
+    .replace(/[ة]/g, 'ه')
+    .replace(/[ى]/g, 'ي')
+    .replace(/[ـ]/g, '')
+    .trim()
+}
+
+/**
+ * Dynamically search products by product names, team names, brands, categories, or keywords.
+ * Supports both English and Arabic queries.
+ */
+export function searchProducts(
+  query: string,
+  _lang: string = 'en',
+  limit: number = 24
+): Product[] {
+  if (!query || !query.trim()) return []
+  const normalizedQuery = normalizeSearchText(query)
+  const queryTokens = normalizedQuery.split(/\s+/).filter(Boolean)
+  if (queryTokens.length === 0) return []
+
+  const scored: { product: Product; score: number }[] = []
+
+  for (const product of allSearchableProducts) {
+    const nameEn = normalizeSearchText(product.name || '')
+    const localizedAr = getLocalizedProduct(product, 'ar')
+    const nameAr = normalizeSearchText(localizedAr.name || '')
+    const team = normalizeSearchText(product.team || '')
+    const brand = normalizeSearchText(product.brand || '')
+    const brandOrTeam = normalizeSearchText(product.brandOrTeam || '')
+    const categoryEn = normalizeSearchText(product.category || '')
+    const categoriesEn = normalizeSearchText((product.categories || []).join(' '))
+    const categoryAr = normalizeSearchText(getLocalizedCategory(product.category || '', 'ar'))
+    const productType = product.productType
+    const productTypeTerms =
+      productType === 'jersey'
+        ? 'jersey jerseys kit kits shirt shirts football soccer قميص قمصان اطقم طقم'
+        : 'shoe shoes sneakers sneaker loafer loafers footwear حذاء احذية جزمة جزم سنيكرز لوفر'
+    const color = normalizeSearchText(`${product.color || ''} ${product.colorFamily || ''}`)
+    const sku = normalizeSearchText(product.sku || '')
+    const desc = normalizeSearchText(product.description || '')
+
+    let aliases = ''
+    const teamLower = (product.team || '').toLowerCase()
+    const nameLower = (product.name || '').toLowerCase()
+
+    if (teamLower.includes('barcelona') || nameLower.includes('barcelona')) {
+      aliases += ' barca barça fcb برشلونة بارسا'
+    }
+    if (teamLower.includes('real madrid') || nameLower.includes('real madrid')) {
+      aliases += ' rm madrid ريال مدريد'
+    }
+    if (teamLower.includes('manchester') || nameLower.includes('manchester')) {
+      aliases += ' mufc man utd manchester united مانشستر يونايتد'
+    }
+    if (teamLower.includes('paris') || teamLower.includes('psg') || nameLower.includes('psg')) {
+      aliases += ' psg paris saint germain باريس سان جيرمان'
+    }
+    if (teamLower.includes('miami') || nameLower.includes('miami')) {
+      aliases += ' miami messi inter miami ميامي ميسي انتر ميامي'
+    }
+    if (teamLower.includes('nassr') || nameLower.includes('nassr')) {
+      aliases += ' nassr ronaldo al nassr النصر رونالدو'
+    }
+    if (teamLower.includes('milan') || nameLower.includes('milan')) {
+      aliases += ' ac milan ميلان اسي ميلان'
+    }
+    if (teamLower.includes('germany') || nameLower.includes('germany')) {
+      aliases += ' germany deutschland المانيا'
+    }
+    if (teamLower.includes('atlas') || nameLower.includes('atlas')) {
+      aliases += ' morocco maroc المغرب اسود الاطلس'
+    }
+    if (teamLower.includes('azzurri') || nameLower.includes('azzurri')) {
+      aliases += ' italy italia ايطاليا ازوري'
+    }
+
+    if (product.productType === 'shoe') {
+      const catLower = (product.category || '').toLowerCase()
+      if (catLower.includes('sneaker') || nameLower.includes('sneaker')) {
+        aliases += ' sneakers sneaker سنيكرز'
+      }
+      if (catLower.includes('loafer') || nameLower.includes('loafer')) {
+        aliases += ' loafers loafer لوفر'
+      }
+      if (
+        catLower.includes('formal') ||
+        nameLower.includes('oxford') ||
+        nameLower.includes('derby') ||
+        nameLower.includes('monk')
+      ) {
+        aliases += ' formal dress shoes كلاسيك رسمي اوكسفورد'
+      }
+    }
+
+    const normalizedAliases = normalizeSearchText(aliases)
+    const corpus = `${nameEn} ${nameAr} ${team} ${brand} ${brandOrTeam} ${categoryEn} ${categoriesEn} ${categoryAr} ${productTypeTerms} ${color} ${sku} ${desc} ${normalizedAliases}`
+
+    const isMatch = queryTokens.every((token) => corpus.includes(token))
+    if (!isMatch) continue
+
+    let score = 0
+    if (nameEn === normalizedQuery || nameAr === normalizedQuery) {
+      score += 150
+    } else if (nameEn.startsWith(normalizedQuery) || nameAr.startsWith(normalizedQuery)) {
+      score += 100
+    } else if (nameEn.includes(normalizedQuery) || nameAr.includes(normalizedQuery)) {
+      score += 80
+    }
+
+    if (team && (team === normalizedQuery || team.includes(normalizedQuery))) {
+      score += 60
+    }
+    if (brand && (brand === normalizedQuery || brand.includes(normalizedQuery))) {
+      score += 50
+    }
+    if (categoryEn.includes(normalizedQuery) || categoryAr.includes(normalizedQuery)) {
+      score += 40
+    }
+
+    for (const token of queryTokens) {
+      if (nameEn.includes(token) || nameAr.includes(token)) score += 25
+      if (team.includes(token)) score += 20
+      if (brand.includes(token)) score += 15
+      if (categoryEn.includes(token) || categoryAr.includes(token)) score += 10
+      if (normalizedAliases.includes(token)) score += 15
+    }
+
+    if (product.isFeatured || product.featured) {
+      score += 3
+    }
+
+    scored.push({ product, score })
+  }
+
+  scored.sort((a, b) => b.score - a.score)
+  return scored.slice(0, limit).map((s) => s.product)
 }
 
 /**
@@ -386,36 +619,76 @@ export function getLocalizedCategory(category: string, lang: string): string {
   if (!category) return category
   const lower = category.toLowerCase().trim()
   if (lang === 'ar') {
-    if (lower === 'club' || lower === 'club jerseys') return 'قمصان الأندية'
-    if (lower === 'national' || lower === 'national team jerseys') return 'قمصان المنتخبات'
-    if (lower === 'retro' || lower === 'retro jerseys') return 'قمصان كلاسيكية'
-    if (lower === 'special' || lower === 'special-collections' || lower === 'special collections') return 'مجموعات خاصة'
-    if (lower === 'training' || lower === 'training jerseys') return 'قمصان التدريب'
-    if (lower === 'kids' || lower === 'kids jerseys') return 'قمصان الأطفال'
-    if (lower === 'sneakers') return 'سنيكرز'
-    if (lower === 'loafers') return 'لوفر'
-    if (lower === 'casual' || lower === 'casual shoes') return 'أحذية كاجوال'
-    if (lower === 'formal' || lower === 'formal shoes') return 'أحذية رسمية'
-    if (lower === 'leather' || lower === 'leather classics') return 'أحذية جلدية'
-    if (lower === 'new-arrivals') return 'وصل حديثاً'
+    if (lower === 'club' || lower === 'club-jerseys' || lower === 'club jerseys') return 'قمصان الأندية'
+    if (lower === 'national' || lower === 'national-jerseys' || lower === 'national-teams' || lower === 'national team jerseys') return 'قمصان المنتخبات'
+    if (lower === 'retro' || lower === 'retro-jerseys' || lower === 'retro jerseys' || lower === 'retro & classic' || lower === 'retro-classic') return 'قمصان كلاسيكية'
+    if (lower === 'special' || lower === 'special-collections' || lower === 'special collections' || lower === 'special-editions' || lower === 'special editions') return 'مجموعات خاصة'
+    if (lower === 'training' || lower === 'training jerseys' || lower === 'training kits' || lower === 'training-kits' || lower === 'training-jerseys') return 'قمصان التدريب'
+    if (lower === 'kids' || lower === 'kids jerseys' || lower === 'kids-jerseys') return 'قمصان الأطفال'
+    if (lower === 'new-season' || lower === 'new-season-jerseys' || lower === 'new season') return 'الموسم الجديد'
+    if (lower === 'matchday' || lower === 'matchday-jerseys') return 'قمصان المباريات'
+    if (lower === 'heritage' || lower === 'heritage-jerseys') return 'تراثي'
+    if (lower === 'goalkeeper' || lower === 'goalkeeper-jerseys') return 'حراس المرمى'
+    if (lower === 'limited') return 'إصدار محدود'
+    if (lower === 'sneakers' || lower === 'casual-sneakers') return 'سنيكرز'
+    if (lower === 'loafers' || lower === 'luxury-loafers') return 'لوفر'
+    if (lower === 'casual' || lower === 'casual-shoes' || lower === 'casual shoes' || lower === 'urban' || lower === 'urban-casual') return 'أحذية كاجوال'
+    if (lower === 'formal' || lower === 'formal-shoes' || lower === 'formal shoes') return 'أحذية رسمية'
+    if (lower === 'leather' || lower === 'leather classics' || lower === 'leather-classics' || lower === 'leather-shoes') return 'أحذية جلدية'
+    if (lower === 'new-arrivals' || lower === 'new-arrivals-shoes' || lower === 'shoes-new-arrivals') return 'وصل حديثاً'
+    if (lower === 'minimalist' || lower === 'minimalist-shoes') return 'أحذية مينيمالية'
+    if (lower === 'running' || lower === 'running-shoes') return 'أحذية ركض'
+    if (lower === 'boots') return 'بوت'
     if (lower === 'track order') return 'تتبع الطلب'
     return category
   }
 
   const enMap: Record<string, string> = {
     club: 'Club Jerseys',
-    national: 'National Team Jerseys',
-    retro: 'Retro & Classic',
-    special: 'Special Collections',
-    'special-collections': 'Special Collections',
+    'club-jerseys': 'Club Jerseys',
+    national: 'National Jerseys',
+    'national-jerseys': 'National Jerseys',
+    'national-teams': 'National Jerseys',
+    retro: 'Retro Jerseys',
+    'retro-jerseys': 'Retro Jerseys',
+    'retro-classic': 'Retro Jerseys',
+    special: 'Special Editions',
+    'special-collections': 'Special Editions',
+    'special-editions': 'Special Editions',
     kids: 'Kids Jerseys',
+    'kids-jerseys': 'Kids Jerseys',
+    'new-season': 'New Season',
+    'new-season-jerseys': 'New Season',
+    matchday: 'Matchday Kits',
+    'matchday-jerseys': 'Matchday Kits',
+    heritage: 'Heritage Kits',
+    'heritage-jerseys': 'Heritage Kits',
+    goalkeeper: 'Goalkeeper Jerseys',
+    'goalkeeper-jerseys': 'Goalkeeper Jerseys',
+    limited: 'Limited Edition',
     training: 'Training Kits',
+    'training-kits': 'Training Kits',
+    'training-jerseys': 'Training Kits',
     sneakers: 'Sneakers',
+    'casual-sneakers': 'Sneakers',
     loafers: 'Loafers',
+    'luxury-loafers': 'Loafers',
     casual: 'Casual Shoes',
+    'casual-shoes': 'Casual Shoes',
+    'urban-casual': 'Casual Shoes',
     formal: 'Formal Shoes',
+    'formal-shoes': 'Formal Shoes',
     leather: 'Leather Classics',
+    'leather-classics': 'Leather Classics',
+    'leather-shoes': 'Leather Classics',
     'new-arrivals': 'New Arrivals',
+    'new-arrivals-shoes': 'New Arrivals',
+    'shoes-new-arrivals': 'New Arrivals',
+    minimalist: 'Minimalist Shoes',
+    'minimalist-shoes': 'Minimalist Shoes',
+    running: 'Running Shoes',
+    'running-shoes': 'Running Shoes',
+    boots: 'Boots',
   }
   return enMap[lower] || category
 }

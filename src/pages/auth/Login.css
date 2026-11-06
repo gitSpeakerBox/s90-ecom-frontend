@@ -1,0 +1,33 @@
+.catalog-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  padding: 48px 20px;
+  text-align: center;
+}
+
+.catalog-placeholder-eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--color-text-muted, #767676);
+  margin-bottom: 8px;
+}
+
+.catalog-placeholder-title {
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--color-text-main, #111111);
+  margin-bottom: 12px;
+}
+
+.catalog-placeholder-description {
+  font-size: 14px;
+  color: var(--color-text-secondary, #555555);
+  max-width: 480px;
+  margin-bottom: 24px;
+  line-height: 1.6;
+}
+

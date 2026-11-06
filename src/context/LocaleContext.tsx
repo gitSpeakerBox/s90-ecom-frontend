@@ -12,6 +12,7 @@ import {
   DEFAULT_COUNTRY,
   COUNTRY_CURRENCY_MAP,
 } from '../data/countries'
+import { BASE_CURRENCY, CHECKOUT_PAYMENT_CURRENCY } from '../constants/currency'
 import i18n from '../i18n'
 
 export type Language = 'en' | 'ar'
@@ -21,7 +22,12 @@ export interface LocaleContextType {
   setLanguage: (lang: Language) => void
   country: Country
   setCountry: (country: Country) => void
+  /** Active display currency mapped to user's country or selection */
   currency: string
+  /** Canonical base currency of product data in catalog (QAR) */
+  baseCurrency: string
+  /** Settlement/checkout payment currency (USD per requirement) */
+  paymentCurrency: string
   countries: Country[]
   t: (key: string, options?: Record<string, unknown>) => string
 }
@@ -90,15 +96,19 @@ export const LocaleProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [country])
 
+  // Explicit handlers ensuring country changes NEVER mutate language
   const setLanguage = (lang: Language) => {
     setLanguageState(lang)
   }
 
   const setCountry = (newCountry: Country) => {
+    // Only updates country and corresponding currency mapping; preserves language
     setCountryState(newCountry)
   }
 
-  const currency = COUNTRY_CURRENCY_MAP[country.name] || country.currency
+  const currency = COUNTRY_CURRENCY_MAP[country.name] || country.currency || BASE_CURRENCY
+  const baseCurrency = BASE_CURRENCY
+  const paymentCurrency = CHECKOUT_PAYMENT_CURRENCY
 
   const t = (key: string, options?: Record<string, unknown>): string => {
     return i18n.t(key, { lng: language, ...options })
@@ -112,6 +122,8 @@ export const LocaleProvider = ({ children }: { children: ReactNode }) => {
         country,
         setCountry,
         currency,
+        baseCurrency,
+        paymentCurrency,
         countries: COUNTRIES,
         t,
       }}

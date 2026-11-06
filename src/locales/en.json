@@ -9,8 +9,11 @@
     "countries": {
       "SA": "Saudi Arabia",
       "QA": "Qatar",
+      "BH": "Bahrain",
       "OM": "Oman",
       "AE": "UAE (Dubai)",
+      "DE": "Germany",
+      "FR": "France",
       "US": "USA",
       "GB": "UK"
     }
@@ -21,6 +24,7 @@
     "openSearch": "Open search",
     "closeSearch": "Close search",
     "clearSearch": "Clear search",
+    "noProductsFound": "No products match your search \"{{query}}\".",
     "customerAccountMenu": "Customer account menu",
     "accountOptions": "Account options",
     "helloGuest": "Hello, Guest",
@@ -403,6 +407,7 @@
     "freeShipping": "Free",
     "viewDetails": "View details",
     "backToOrders": "Back to all orders",
+    "back": "Back",
     "detailsTitle": "Order Details",
     "shippingAddress": "Shipping Address",
     "paymentMethod": "Payment Method",
