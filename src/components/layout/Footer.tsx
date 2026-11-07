@@ -103,6 +103,20 @@ export const Footer = () => {
     }
   }
 
+  const handleHashLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    if (href.startsWith('#')) {
+      const targetId = href.slice(1)
+      const element = targetId ? document.getElementById(targetId) : null
+      if (element) {
+        e.preventDefault()
+        element.scrollIntoView({ behavior: 'smooth' })
+      } else {
+        // Prevent unresolved placeholder hash links from causing unwanted jump/scrolling
+        e.preventDefault()
+      }
+    }
+  }
+
   const renderFooterLink = (item: FooterLinkItem) => {
     const isInternal = item.href.startsWith('/') && !item.href.startsWith('//')
     const label = item.labelKey
@@ -129,6 +143,7 @@ export const Footer = () => {
       <a
         href={item.href}
         className="footer-link"
+        onClick={(e) => handleHashLinkClick(e, item.href)}
         {...(item.isExternal
           ? { target: '_blank', rel: 'noopener noreferrer' }
           : {})}
@@ -293,7 +308,11 @@ export const Footer = () => {
           <ul className="footer-bottom-legal">
             {FOOTER_BOTTOM_DATA.legalLinks.map((link) => (
               <li key={link.id} className="footer-bottom-legal-item">
-                <a href={link.href} className="footer-bottom-legal-link">
+                <a
+                  href={link.href}
+                  className="footer-bottom-legal-link"
+                  onClick={(e) => handleHashLinkClick(e, link.href)}
+                >
                   {link.labelKey
                     ? t(link.labelKey, { defaultValue: link.label })
                     : link.label}

@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useRef, useCallback, useEffect } from 'react'
+import React, { useState, useMemo, useRef, useCallback } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { ChevronRight, ChevronLeft } from 'lucide-react'
 import { useLocale } from '../../context/LocaleContext'
@@ -58,11 +58,6 @@ export const CollectionListing: React.FC = () => {
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
   const filtersButtonRef = useRef<HTMLButtonElement>(null)
-
-  // Scroll to top when slug changes
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior })
-  }, [slug])
 
   const activeFilters: ProductFilterOptions = useMemo(() => {
     return {

@@ -56,6 +56,11 @@ export interface JerseyCustomizationOptions {
   patchOptions?: string[];
 }
 
+export interface JerseyComparisonImages {
+  stadiumImage: string;
+  authenticImage: string;
+}
+
 export interface ShoeVariant {
   id: string;
   sku: string;
@@ -127,6 +132,7 @@ export interface JerseyProduct extends BaseProduct {
   fit: 'Slim Fit' | 'Regular Fit' | 'Athletic Fit' | 'Relaxed Vintage Fit';
   material: string;
   customization?: JerseyCustomizationOptions;
+  comparisonImages?: JerseyComparisonImages;
 }
 
 /**
