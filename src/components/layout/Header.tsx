@@ -53,6 +53,13 @@ export const Header = ({ hasHero: propHasHero }: HeaderProps = {}) => {
   const location = useLocation()
   const navigate = useNavigate()
   const normalizedPath = location.pathname.replace(/\/+$/, '') || '/'
+
+  // User email initial for circular profile indicator
+  const userEmailInitial = useMemo(() => {
+    if (!user || !user.email) return null
+    const trimmed = user.email.trim()
+    return trimmed.length > 0 ? trimmed.charAt(0).toUpperCase() : null
+  }, [user])
   const hasHero = propHasHero ?? HERO_ROUTES.has(normalizedPath)
 
   const matchingProducts = useMemo(
@@ -621,13 +628,19 @@ export const Header = ({ hasHero: propHasHero }: HeaderProps = {}) => {
           <div className="header-user-container" ref={userMenuRef}>
             <button
               type="button"
-              className={`header-icon-btn ${userMenuOpen ? 'active' : ''}`}
+              className={`header-icon-btn ${userEmailInitial ? 'header-icon-btn--has-initial' : ''} ${userMenuOpen ? 'active' : ''}`}
               aria-label={t('header.customerAccountMenu')}
               aria-haspopup="true"
               aria-expanded={userMenuOpen}
               onClick={() => setUserMenuOpen((prev) => !prev)}
             >
-              <User size={19} strokeWidth={1.5} />
+              {userEmailInitial ? (
+                <span className="header-user-initial" aria-hidden="true">
+                  {userEmailInitial}
+                </span>
+              ) : (
+                <User size={19} strokeWidth={1.5} />
+              )}
             </button>
 
             {userMenuOpen && (
@@ -834,9 +847,9 @@ export const Header = ({ hasHero: propHasHero }: HeaderProps = {}) => {
                   onClick={() => setDrawerCountryOpen((prev) => !prev)}
                   aria-expanded={drawerCountryOpen}
                 >
-                  <span className="country-flag">{country.flag}</span>
+                  <span className={`fi fi-${country.flag} country-flag`} aria-hidden="true" />
                   <span className="mobile-country-name">
-                    {t(`topBar.countries.${country.code}`, { defaultValue: country.name })}
+                    {t(`topBar.countries.${country.code}`, { defaultValue: country.name }).toUpperCase()}
                   </span>
                   <ChevronDown
                     size={13}
@@ -858,9 +871,9 @@ export const Header = ({ hasHero: propHasHero }: HeaderProps = {}) => {
                           setDrawerCountryOpen(false)
                         }}
                       >
-                        <span className="country-flag">{c.flag}</span>
+                        <span className={`fi fi-${c.flag} country-flag`} aria-hidden="true" />
                         <span>
-                          {t(`topBar.countries.${c.code}`, { defaultValue: c.name })}
+                          {t(`topBar.countries.${c.code}`, { defaultValue: c.name }).toUpperCase()}
                         </span>
                         {c.name === country.name && (
                           <Check size={14} className="mobile-country-check" />

@@ -456,11 +456,7 @@ export const Checkout: React.FC = () => {
         aria-label={t('common.breadcrumb', { defaultValue: 'Breadcrumb' })}
       >
         <ol className="checkout-breadcrumb-list">
-          <li className="checkout-breadcrumb-item">
-            <Link to="/" className="checkout-breadcrumb-link">
-              {t('common.home', { defaultValue: 'Home' })}
-            </Link>
-          </li>
+          
           <li className="checkout-breadcrumb-sep" aria-hidden="true">
             <ChevronRight size={12} />
           </li>

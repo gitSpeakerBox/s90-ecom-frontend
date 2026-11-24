@@ -526,7 +526,6 @@ export const ProductDetailPlaceholder: React.FC = () => {
     <div className="product-detail-page">
       {/* Top Breadcrumb */}
       <nav className="product-breadcrumb" aria-label="Breadcrumb">
-        <Link to="/" className="breadcrumb-link">{t('common.home').toUpperCase()}</Link>
         <span className="breadcrumb-separator">/</span>
         <Link to={catalogPath} className="breadcrumb-link">{catalogName.toUpperCase()}</Link>
         <span className="breadcrumb-separator">/</span>

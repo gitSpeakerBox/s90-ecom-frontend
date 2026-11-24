@@ -20,3 +20,13 @@
 .app-content.no-hero {
   padding-top: calc(var(--height-announcement, 36px) + var(--height-header, 64px));
 }
+
+/* Authentication pages layout: fits viewport cleanly without extra scroll */
+.app-layout.auth-layout {
+  min-height: 100vh;
+}
+
+.app-content.auth-content {
+  flex: 1 1 auto;
+  min-height: calc(100vh - (var(--height-announcement, 36px) + var(--height-header, 64px)));
+}

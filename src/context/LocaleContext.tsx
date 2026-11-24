@@ -4,6 +4,7 @@ import {
   useContext,
   useState,
   useEffect,
+  useRef,
   type ReactNode,
 } from 'react'
 import {
@@ -11,8 +12,10 @@ import {
   COUNTRIES,
   DEFAULT_COUNTRY,
   COUNTRY_CURRENCY_MAP,
+  findCountryByCodeOrName,
 } from '../data/countries'
 import { BASE_CURRENCY, CHECKOUT_PAYMENT_CURRENCY } from '../constants/currency'
+import { detectUserCountry } from '../services/geoService'
 import i18n from '../i18n'
 
 export type Language = 'en' | 'ar'
@@ -29,13 +32,15 @@ export interface LocaleContextType {
   /** Settlement/checkout payment currency (USD per requirement) */
   paymentCurrency: string
   countries: Country[]
+  isDetectingCountry?: boolean
   t: (key: string, options?: Record<string, unknown>) => string
 }
 
 const LocaleContext = createContext<LocaleContextType | undefined>(undefined)
 
-const STORAGE_KEY_LANG = 's90_locale_lang'
-const STORAGE_KEY_COUNTRY = 's90_locale_country'
+export const STORAGE_KEY_LANG = 's90_locale_lang'
+export const STORAGE_KEY_COUNTRY = 's90_locale_country'
+export const STORAGE_KEY_MANUAL_COUNTRY = 's90_country_manual'
 
 export const LocaleProvider = ({ children }: { children: ReactNode }) => {
   const [language, setLanguageState] = useState<Language>(() => {
@@ -66,7 +71,7 @@ export const LocaleProvider = ({ children }: { children: ReactNode }) => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY_COUNTRY)
       if (saved) {
-        const found = COUNTRIES.find((c) => c.name === saved)
+        const found = findCountryByCodeOrName(saved) || COUNTRIES.find((c) => c.name === saved)
         if (found) return found
       }
     } catch {
@@ -74,6 +79,62 @@ export const LocaleProvider = ({ children }: { children: ReactNode }) => {
     }
     return DEFAULT_COUNTRY
   })
+
+  const [isDetectingCountry, setIsDetectingCountry] = useState(false)
+
+  // Track whether the country was manually chosen by the user
+  const isManualRef = useRef<boolean>(false)
+  useEffect(() => {
+    try {
+      isManualRef.current = localStorage.getItem(STORAGE_KEY_MANUAL_COUNTRY) === 'true'
+    } catch {
+      isManualRef.current = false
+    }
+  }, [])
+
+  // Automatic IP-based country detection on website load
+  useEffect(() => {
+    let isCancelled = false
+
+    // If user has already made a manual selection, do not overwrite it
+    try {
+      if (localStorage.getItem(STORAGE_KEY_MANUAL_COUNTRY) === 'true') {
+        isManualRef.current = true
+        return
+      }
+    } catch {
+      // ignore
+    }
+
+    const runDetection = async () => {
+      setIsDetectingCountry(true)
+      try {
+        const result = await detectUserCountry()
+        if (isCancelled || isManualRef.current) return
+
+        if (result.country) {
+          setCountryState(result.country)
+          try {
+            localStorage.setItem(STORAGE_KEY_COUNTRY, result.country.name)
+          } catch {
+            // ignore
+          }
+        }
+      } catch {
+        // Fail gracefully to default country without disrupting UI
+      } finally {
+        if (!isCancelled) {
+          setIsDetectingCountry(false)
+        }
+      }
+    }
+
+    runDetection()
+
+    return () => {
+      isCancelled = true
+    }
+  }, [])
 
   useEffect(() => {
     document.documentElement.lang = language
@@ -102,7 +163,14 @@ export const LocaleProvider = ({ children }: { children: ReactNode }) => {
   }
 
   const setCountry = (newCountry: Country) => {
-    // Only updates country and corresponding currency mapping; preserves language
+    // Explicit user action: flag as manual selection so IP detection won't override it
+    isManualRef.current = true
+    try {
+      localStorage.setItem(STORAGE_KEY_MANUAL_COUNTRY, 'true')
+      localStorage.setItem(STORAGE_KEY_COUNTRY, newCountry.name)
+    } catch {
+      // ignore
+    }
     setCountryState(newCountry)
   }
 
@@ -125,6 +193,7 @@ export const LocaleProvider = ({ children }: { children: ReactNode }) => {
         baseCurrency,
         paymentCurrency,
         countries: COUNTRIES,
+        isDetectingCountry,
         t,
       }}
     >

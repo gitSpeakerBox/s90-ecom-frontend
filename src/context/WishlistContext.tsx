@@ -82,7 +82,7 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
           next.splice(index, 0, slug)
           return next
         }
-        return [...prev, slug]
+        return [slug, ...prev]
       })
       showToast('toast.wishlistAdded')
     },
@@ -110,7 +110,7 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
         setItems((prev) => prev.filter((s) => s !== slug))
         showToast('toast.wishlistRemoved')
       } else {
-        setItems((prev) => [...prev, slug])
+        setItems((prev) => [slug, ...prev])
         showToast('toast.wishlistAdded')
       }
     },

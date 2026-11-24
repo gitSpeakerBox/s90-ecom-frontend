@@ -19,6 +19,7 @@ export interface CartItem {
   name?: string
   image?: string
   brandOrTeam?: string
+  addedAt?: number
 }
 
 export interface AddToCartPayload {
@@ -29,6 +30,7 @@ export interface AddToCartPayload {
   name?: string
   image?: string
   brandOrTeam?: string
+  addedAt?: number
 }
 
 export interface CartContextType {
@@ -138,8 +140,9 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
           name: payload.name,
           image: payload.image,
           brandOrTeam: payload.brandOrTeam,
+          addedAt: payload.addedAt ?? Date.now(),
         }
-        return [...prevItems, newItem]
+        return [newItem, ...prevItems]
       })
 
       triggerCartBump()

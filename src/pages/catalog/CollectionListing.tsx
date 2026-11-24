@@ -260,7 +260,6 @@ export const CollectionListing: React.FC = () => {
   const productsForDrawer = getCatalogProducts(collectionInfo.type)
   const isRTL = language === 'ar'
   const ChevronIcon = isRTL ? ChevronLeft : ChevronRight
-  const homeLabel = t('common.home', { defaultValue: 'Home' })
 
   return (
     <div className="collection-listing-page">
@@ -271,11 +270,7 @@ export const CollectionListing: React.FC = () => {
           aria-label={t('common.breadcrumb', { defaultValue: 'Breadcrumb' })}
         >
           <ol className="collection-breadcrumb-list">
-            <li className="collection-breadcrumb-item">
-              <Link to="/" className="collection-breadcrumb-link">
-                {homeLabel}
-              </Link>
-            </li>
+           
             <li className="collection-breadcrumb-sep" aria-hidden="true">
               <ChevronIcon size={14} />
             </li>

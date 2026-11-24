@@ -1,0 +1,8 @@
+/* Signup Page Specific Styles */
+@import './AuthCommon.css';
+
+.signup-terms-note {
+  font-size: 11.5px;
+  color: var(--color-text-muted, #71717a);
+  margin-top: 4px;
+}

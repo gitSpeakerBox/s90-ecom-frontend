@@ -6,12 +6,14 @@
   z-index: 95;
 }
 
-/* Row 1: Utility Bar */
+/* Utility Bar */
 .top-utility-bar {
-  height: 36px;
+  min-height: 36px;
+  height: auto;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
+  padding-block: 4px;
   padding-inline: 48px;
   box-sizing: border-box;
   font-family: var(--font-body);
@@ -20,10 +22,23 @@
   text-transform: uppercase;
 }
 
+.top-utility-left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 2px;
+}
+
+.top-utility-divider {
+  display: none;
+}
+
 .top-utility-lang {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
+  line-height: 1;
 }
 
 .lang-btn {
@@ -31,13 +46,18 @@
   border: none;
   color: #ffffff;
   font-family: inherit;
-  font-size: 11px;
+  font-size: 10px;
   letter-spacing: inherit;
   text-transform: uppercase;
   cursor: pointer;
-  padding: 4px 2px;
+  padding: 1px 2px;
+  line-height: 1.2;
   opacity: 0.65;
   transition: opacity 0.2s ease, text-decoration 0.2s ease;
+}
+
+.lang-btn:first-child {
+  padding-inline-start: 0;
 }
 
 .lang-btn:hover {
@@ -58,12 +78,15 @@
 
 .lang-divider {
   color: rgba(255, 255, 255, 0.4);
-  font-size: 11px;
+  font-size: 10px;
+  line-height: 1.2;
 }
 
 /* Country Selector */
 .top-utility-country {
   position: relative;
+  display: flex;
+  align-items: center;
 }
 
 .country-trigger-btn {
@@ -71,14 +94,16 @@
   border: none;
   color: #ffffff;
   font-family: inherit;
-  font-size: 11px;
+  font-size: 10px;
   letter-spacing: inherit;
   text-transform: uppercase;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 6px 4px;
+  gap: 6px;
+  padding: 1px 2px;
+  padding-inline-start: 0;
+  line-height: 1.2;
   transition: opacity 0.2s ease;
 }
 
@@ -91,9 +116,18 @@
   outline-offset: 2px;
 }
 
+.country-trigger-btn .fi {
+  width: 16px;
+  height: 12px;
+  display: inline-block;
+  margin-inline-end: 0;
+  background-size: cover;
+  border-radius: 0;
+  flex-shrink: 0;
+  vertical-align: middle;
+}
+
 .fi,
-.top-utility-country .fi,
-.country-trigger-btn .fi,
 .country-option .fi {
   width: 20px;
   height: 15px;
@@ -106,10 +140,11 @@
 }
 
 .country-name {
-  max-width: 120px;
+  max-width: 140px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  text-transform: uppercase;
 }
 
 .country-chevron {
@@ -124,12 +159,14 @@
 .country-dropdown-panel {
   position: absolute;
   top: calc(100% + 4px);
-  inset-inline-end: 0;
+  inset-inline-start: 0;
   width: 240px;
+  max-height: 360px;
+  overflow-y: auto;
   background-color: #ffffff;
   color: var(--color-text-main, #111111);
   border: 1px solid var(--color-border-hairline, #E4E0D8);
-  box-shadow: none;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
   list-style: none;
   padding: 0;
   margin: 0;
@@ -214,8 +251,14 @@
 
 @media (max-width: 640px) {
   .top-utility-bar {
-    display: flex;
+    min-height: 36px;
+    height: auto;
+    padding-block: 4px;
     padding-inline: 16px;
+  }
+
+  .top-utility-left {
+    gap: 2px;
   }
 
   .top-shipping-bar {
@@ -232,14 +275,19 @@
 @media (max-width: 380px) {
   .top-utility-bar {
     padding-inline: 10px;
+    padding-block: 3px;
+  }
+
+  .top-utility-left {
+    gap: 1px;
   }
 
   .top-utility-lang {
-    gap: 6px;
+    gap: 4px;
   }
 
   .country-trigger-btn {
-    gap: 6px;
+    gap: 4px;
   }
 
   .country-name {

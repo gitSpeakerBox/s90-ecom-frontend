@@ -72,99 +72,100 @@ export const TopBar = ({
 
   return (
     <div className="top-bar-block">
-      {/* Row 1: Utility Bar */}
+      {/* Utility Bar */}
       <div className="top-utility-bar">
-        {/* Left / start: Language Switch */}
-        <div
-          className="top-utility-lang"
-          role="group"
-          aria-label={t('topBar.languageSelection')}
-        >
-          <button
-            type="button"
-            className={`lang-btn ${language === 'en' ? 'active' : ''}`}
-            onClick={() => setLanguage('en')}
-            aria-pressed={language === 'en'}
+        {/* Top-Left: Language Switch and Detected Country (Vertical Layout) */}
+        <div className="top-utility-left">
+          {/* First row: Language Switch */}
+          <div
+            className="top-utility-lang"
+            role="group"
+            aria-label={t('topBar.languageSelection')}
           >
-            {t('topBar.english')}
-          </button>
-          <span className="lang-divider" aria-hidden="true">
-            /
-          </span>
-          <button
-            type="button"
-            className={`lang-btn ${language === 'ar' ? 'active' : ''}`}
-            onClick={() => setLanguage('ar')}
-            aria-pressed={language === 'ar'}
-          >
-            {t('topBar.arabic')}
-          </button>
-        </div>
-
-        {/* Right / end: Country Selector Dropdown */}
-        <div className="top-utility-country" ref={dropdownRef}>
-          <button
-            type="button"
-            className="country-trigger-btn"
-            onClick={toggleDropdown}
-            aria-haspopup="listbox"
-            aria-expanded={dropdownOpen}
-            aria-label={t('topBar.countrySelectorAria', {
-              country: t(`topBar.countries.${country.code}`, { defaultValue: country.name }),
-            })}
-          >
-            <span className={`fi fi-${country.flag}`} aria-hidden="true" />
-            <span className="country-name">
-              {t(`topBar.countries.${country.code}`, { defaultValue: country.name })}
-            </span>
-            <ChevronDown
-              size={12}
-              className={`country-chevron ${dropdownOpen ? 'open' : ''}`}
-              aria-hidden="true"
-            />
-          </button>
-
-          {dropdownOpen && (
-            <ul
-              className="country-dropdown-panel"
-              role="listbox"
-              aria-label={t('topBar.selectCountry')}
+            <button
+              type="button"
+              className={`lang-btn ${language === 'en' ? 'active' : ''}`}
+              onClick={() => setLanguage('en')}
+              aria-pressed={language === 'en'}
             >
-              {countries.map((c) => {
-                const isSelected = c.name === country.name
-                const localizedCountryName = t(`topBar.countries.${c.code}`, {
-                  defaultValue: c.name,
-                })
-                return (
-                  <li
-                    key={c.code}
-                    role="option"
-                    aria-selected={isSelected}
-                    className={`country-option ${isSelected ? 'selected' : ''}`}
-                    onClick={() => handleSelectCountry(c)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault()
-                        handleSelectCountry(c)
-                      }
-                    }}
-                    tabIndex={0}
-                  >
-                    <span className={`fi fi-${c.flag}`} aria-hidden="true" />
-                    <span className="country-option-name">{localizedCountryName}</span>
-                    <span className="country-option-currency">({c.currency})</span>
-                    {isSelected && (
-                      <Check size={14} className="country-option-check" />
-                    )}
-                  </li>
-                )
+              {t('topBar.english')}
+            </button>
+            <span className="lang-divider" aria-hidden="true">
+              /
+            </span>
+            <button
+              type="button"
+              className={`lang-btn ${language === 'ar' ? 'active' : ''}`}
+              onClick={() => setLanguage('ar')}
+              aria-pressed={language === 'ar'}
+            >
+              {t('topBar.arabic')}
+            </button>
+          </div>
+
+          {/* Second row: Country Selector Dropdown */}
+          <div className="top-utility-country" ref={dropdownRef}>
+            <button
+              type="button"
+              className="country-trigger-btn"
+              onClick={toggleDropdown}
+              aria-haspopup="listbox"
+              aria-expanded={dropdownOpen}
+              aria-label={t('topBar.countrySelectorAria', {
+                country: t(`topBar.countries.${country.code}`, { defaultValue: country.name }),
               })}
-            </ul>
-          )}
+            >
+              <span className={`fi fi-${country.flag}`} aria-hidden="true" />
+              <span className="country-name">
+                {t(`topBar.countries.${country.code}`, { defaultValue: country.name }).toUpperCase()}
+              </span>
+              <ChevronDown
+                size={12}
+                className={`country-chevron ${dropdownOpen ? 'open' : ''}`}
+                aria-hidden="true"
+              />
+            </button>
+
+            {dropdownOpen && (
+              <ul
+                className="country-dropdown-panel"
+                role="listbox"
+                aria-label={t('topBar.selectCountry')}
+              >
+                {countries.map((c) => {
+                  const isSelected = c.name === country.name
+                  const localizedCountryName = t(`topBar.countries.${c.code}`, {
+                    defaultValue: c.name,
+                  })
+                  return (
+                    <li
+                      key={c.code}
+                      role="option"
+                      aria-selected={isSelected}
+                      className={`country-option ${isSelected ? 'selected' : ''}`}
+                      onClick={() => handleSelectCountry(c)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault()
+                          handleSelectCountry(c)
+                        }
+                      }}
+                      tabIndex={0}
+                    >
+                      <span className={`fi fi-${c.flag}`} aria-hidden="true" />
+                      <span className="country-option-name">{localizedCountryName}</span>
+                      <span className="country-option-currency">({c.currency})</span>
+                      {isSelected && (
+                        <Check size={14} className="country-option-check" />
+                      )}
+                    </li>
+                  )
+                })}
+              </ul>
+            )}
+          </div>
         </div>
       </div>
-
-    
     </div>
   )
 }

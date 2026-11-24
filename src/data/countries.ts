@@ -145,6 +145,26 @@ export const COUNTRIES: Country[] = [
       'Wales',
     ],
   },
+  {
+    name: 'India',
+    code: 'IN',
+    currency: 'INR',
+    flag: 'in',
+    dialCode: '+91',
+    phoneDigits: 10,
+    deliveryDays: '10-15 days',
+    regions: [
+      'Delhi',
+      'Maharashtra',
+      'Karnataka',
+      'Tamil Nadu',
+      'Kerala',
+      'Gujarat',
+      'Telangana',
+      'West Bengal',
+      'Uttar Pradesh',
+    ],
+  },
 ]
 
 export const COUNTRY_CURRENCY_MAP: Record<string, string> = {
@@ -157,6 +177,55 @@ export const COUNTRY_CURRENCY_MAP: Record<string, string> = {
   France: 'EUR',
   USA: 'USD',
   UK: 'GBP',
+  India: 'INR',
 }
 
 export const DEFAULT_COUNTRY = COUNTRIES[1] // Qatar
+
+/**
+ * Look up a country from the supported COUNTRIES list by 2-letter ISO code or country name.
+ * Handles case-insensitivity and common country name aliases (e.g. UAE, United States).
+ */
+export function findCountryByCodeOrName(codeOrName?: string | null): Country | undefined {
+  if (!codeOrName) return undefined
+  const query = codeOrName.trim().toUpperCase()
+  if (!query) return undefined
+
+  // 1. Exact match on 2-letter ISO code
+  const byCode = COUNTRIES.find((c) => c.code.toUpperCase() === query)
+  if (byCode) return byCode
+
+  // 2. Exact match on country name
+  const byName = COUNTRIES.find((c) => c.name.toUpperCase() === query)
+  if (byName) return byName
+
+  // 3. Common aliases
+  if (query === 'UAE' || query === 'UNITED ARAB EMIRATES') {
+    return COUNTRIES.find((c) => c.code === 'AE')
+  }
+  if (
+    query === 'US' ||
+    query === 'USA' ||
+    query === 'UNITED STATES' ||
+    query === 'UNITED STATES OF AMERICA'
+  ) {
+    return COUNTRIES.find((c) => c.code === 'US')
+  }
+  if (
+    query === 'UK' ||
+    query === 'UNITED KINGDOM' ||
+    query === 'GREAT BRITAIN'
+  ) {
+    return COUNTRIES.find((c) => c.code === 'GB')
+  }
+  if (query === 'KSA' || query === 'SAUDI') {
+    return COUNTRIES.find((c) => c.code === 'SA')
+  }
+
+  // 4. Substring or partial match fallback
+  return COUNTRIES.find(
+    (c) =>
+      c.name.toUpperCase().includes(query) ||
+      query.includes(c.name.toUpperCase())
+  )
+}

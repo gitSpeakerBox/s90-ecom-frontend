@@ -1,12 +1,15 @@
 /* Orders Page Styles */
 
 .orders-page-container {
-  max-width: var(--max-content-width, 1440px);
+  width: 100%;
+  max-width: 1200px; /* Expanded width for larger screens */
   margin: 0 auto;
-  padding-inline: var(--space-container-px, 24px);
+  /* Responsive horizontal padding: grows with viewport but never exceeds 48px */
+  padding-inline: clamp(16px, 4vw, 48px);
   padding-block: 32px 80px;
   background-color: var(--color-bg, #ffffff);
   box-sizing: border-box;
+  min-width: 0;
 }
 
 /* Top Navigation Bar: Back Button & Breadcrumbs */
@@ -229,6 +232,10 @@
   border-bottom: 1px solid var(--color-border-hairline, #e5e5e5);
   margin-bottom: 24px;
   overflow-x: auto;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .orders-tab-btn {
@@ -293,6 +300,10 @@
   -webkit-overflow-scrolling: touch;
   margin-bottom: 24px;
   padding-bottom: 4px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .orders-status-filter-row::-webkit-scrollbar {
@@ -352,6 +363,9 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .orders-card {
@@ -359,6 +373,8 @@
   border: 1px solid var(--color-border-hairline, #e5e5e5);
   padding: 24px;
   box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
 }
 
 .order-item-card {
@@ -366,6 +382,8 @@
   flex-direction: column;
   gap: 20px;
   transition: box-shadow 0.2s ease;
+  width: 100%;
+  min-width: 0;
 }
 
 .order-item-card:hover {
@@ -381,12 +399,16 @@
   gap: 12px;
   padding-bottom: 16px;
   border-bottom: 1px solid var(--color-border-hairline, #e5e5e5);
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .order-card-info {
   display: flex;
   align-items: center;
   gap: 12px;
+  min-width: 0;
 }
 
 .order-card-id {
@@ -395,18 +417,21 @@
   font-weight: 700;
   letter-spacing: 0.03em;
   color: var(--color-text-main, #111111);
+  white-space: nowrap;
 }
 
 .order-card-date {
   font-family: var(--font-body);
   font-size: 13px;
   color: var(--color-text-muted, #6b6b6b);
+  white-space: nowrap;
 }
 
 .order-card-header-end {
   display: flex;
   align-items: center;
   gap: 20px;
+  flex-shrink: 0;
 }
 
 /* Status Badge with colored dot */
@@ -421,6 +446,8 @@
   font-size: 12px;
   font-weight: 600;
   color: var(--color-text-main, #111111);
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .status-dot {
@@ -435,6 +462,8 @@
   font-size: 15px;
   font-weight: 700;
   color: var(--color-text-main, #111111);
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 /* Thumbnails Row */
@@ -443,15 +472,46 @@
   align-items: center;
   gap: 20px;
   overflow-x: auto;
-  padding-bottom: 4px;
+  overflow-y: hidden;
+  flex-wrap: nowrap;
+  padding-bottom: 8px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  scrollbar-width: thin;
+  scrollbar-color: #bcbcbc transparent;
+}
+
+.order-card-thumbnails::-webkit-scrollbar {
+  height: 6px;
+}
+
+.order-card-thumbnails::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.order-card-thumbnails::-webkit-scrollbar-thumb {
+  background: #bcbcbc;
+  border-radius: 4px;
+}
+
+.order-card-thumbnails::-webkit-scrollbar-thumb:hover {
+  background: #999999;
 }
 
 .order-thumbnail-item {
   display: flex;
   align-items: center;
   gap: 12px;
+  flex: 0 0 260px;
+  width: 260px;
+  max-width: 260px;
+  min-width: 260px;
   flex-shrink: 0;
-  max-width: 280px;
+  box-sizing: border-box;
 }
 
 .order-thumb-img {
@@ -468,6 +528,8 @@
   flex-direction: column;
   gap: 3px;
   overflow: hidden;
+  flex: 1;
+  min-width: 0;
 }
 
 .order-thumb-name {
@@ -484,6 +546,9 @@
   font-family: var(--font-body);
   font-size: 12px;
   color: var(--color-text-muted, #6b6b6b);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Horizontal Progress Tracker (Desktop) */
@@ -494,6 +559,9 @@
   position: relative;
   margin-top: 10px;
   padding-block: 8px 4px;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .progress-step-item {
@@ -503,6 +571,7 @@
   align-items: center;
   position: relative;
   text-align: center;
+  min-width: 0;
 }
 
 .progress-step-line {
@@ -581,6 +650,9 @@
   justify-content: flex-end;
   padding-top: 14px;
   border-top: 1px solid var(--color-border-hairline, #e5e5e5);
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .orders-view-details-btn {
@@ -879,13 +951,15 @@
 /* Detail Grid (Main + Sidebar) */
 .orders-detail-grid {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr);
   gap: 24px;
+  width: 100%;
+  min-width: 0;
 }
 
 @media (min-width: 768px) {
   .orders-detail-grid {
-    grid-template-columns: 1.6fr 1.2fr;
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1.2fr);
     align-items: start;
   }
 
@@ -898,7 +972,7 @@
 
 @media (min-width: 992px) {
   .orders-detail-grid {
-    grid-template-columns: 1.8fr 1.2fr;
+    grid-template-columns: minmax(0, 1.8fr) minmax(0, 1.2fr);
   }
 }
 
@@ -906,6 +980,7 @@
   display: flex;
   flex-direction: column;
   gap: 24px;
+  min-width: 0;
 }
 
 /* Items Card in Detail */
@@ -1310,3 +1385,9 @@
   }
 }
 
+
+/* Increased container width for Track Order and Order Details pages */
+.orders-page-container {
+  max-width: 1200px;
+  padding-inline: clamp(16px, 4vw, 48px);
+}

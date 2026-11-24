@@ -19,7 +19,7 @@
 
 export const BASE_CURRENCY = 'QAR'
 
-export type SupportedCurrency = 'QAR' | 'SAR' | 'AED' | 'BHD' | 'OMR' | 'USD' | 'EUR' | 'GBP'
+export type SupportedCurrency = 'QAR' | 'SAR' | 'AED' | 'BHD' | 'OMR' | 'USD' | 'EUR' | 'GBP' | 'INR'
 
 export interface CurrencyConfig {
   code: SupportedCurrency
@@ -85,6 +85,13 @@ export const CURRENCY_CONFIG: Record<SupportedCurrency, CurrencyConfig> = {
     symbol: 'GBP',
     name: 'British Pound',
     rateFromBase: 0.2146, // 0.2747 / 1.28
+    decimals: 2,
+  },
+  INR: {
+    code: 'INR',
+    symbol: '₹',
+    name: 'Indian Rupee',
+    rateFromBase: 22.8,
     decimals: 2,
   },
 }
