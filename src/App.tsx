@@ -1,40 +1,29 @@
-import { AppRoutes } from './routes/AppRoutes'
-import { LocaleProvider } from './context/LocaleContext'
-import { ToastProvider } from './context/ToastContext'
-import { AuthProvider } from './context/AuthContext'
-import { SectionProvider } from './context/SectionContext'
-import { CartProvider } from './context/CartContext'
-import { CartDrawerProvider } from './context/CartDrawerContext'
-import { WishlistProvider } from './context/WishlistContext'
-import { CartDrawer } from './components/cart/CartDrawer'
-import { QuickAddModal } from './components/common/QuickAddModal'
-import { Toast } from './components/common/Toast'
-import { ScrollToTop } from './components/common/ScrollToTop'
-import './App.css'
+import { lazy, Suspense } from 'react'
+import { Routes, Route } from 'react-router-dom'
+import { UserApp } from './user/UserApp'
 
+// The admin area is loaded on demand into its own bundle chunk and is mounted
+// outside every storefront provider, layout and the storefront's RTL handling.
+const AdminApp = lazy(() => import('./admin/AdminApp'))
+
+/**
+ * Root router: splits the application into two independent trees.
+ * - /admin/*  → AdminApp (future Admin Dashboard)
+ * - /*        → UserApp  (existing customer storefront, unchanged)
+ */
 function App() {
   return (
-    <LocaleProvider>
-      <ToastProvider>
-        <AuthProvider>
-          <SectionProvider>
-            <CartProvider>
-              <CartDrawerProvider>
-                <WishlistProvider>
-                  <ScrollToTop />
-                  <div className="app-container">
-                    <AppRoutes />
-                  </div>
-                  <CartDrawer />
-                  <QuickAddModal />
-                  <Toast />
-                </WishlistProvider>
-              </CartDrawerProvider>
-            </CartProvider>
-          </SectionProvider>
-        </AuthProvider>
-      </ToastProvider>
-    </LocaleProvider>
+    <Routes>
+      <Route
+        path="/admin/*"
+        element={
+          <Suspense fallback={null}>
+            <AdminApp />
+          </Suspense>
+        }
+      />
+      <Route path="/*" element={<UserApp />} />
+    </Routes>
   )
 }
 

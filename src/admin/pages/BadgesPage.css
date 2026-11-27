@@ -1,0 +1,126 @@
+/* Admin › Badges. All selectors are .adm-* scoped. */
+
+.adm-badge-tabs {
+  margin-top: -4px;
+}
+
+.adm-sponsor-thumb {
+  object-fit: contain;
+  padding: 4px;
+  background: #ffffff;
+}
+
+.adm-sponsor-logo-row {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.adm-sponsor-logo-preview {
+  width: 88px;
+  height: 88px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed var(--adm-border-strong);
+  border-radius: var(--adm-radius);
+  background: #ffffff;
+  color: var(--adm-text-3);
+}
+
+.adm-sponsor-logo-preview img {
+  max-width: 76px;
+  max-height: 76px;
+  object-fit: contain;
+}
+
+.adm-btn--destructive {
+  background: var(--adm-danger-ink);
+  border-color: var(--adm-danger-ink);
+  color: #ffffff;
+}
+
+.adm-btn--destructive:hover {
+  background: #8a2121;
+  border-color: #8a2121;
+}
+
+.adm-row-actions .adm-btn--danger {
+  border-color: transparent;
+}
+
+/* Add / Edit Badge form */
+.adm-required {
+  color: var(--adm-danger-ink);
+  margin-left: 2px;
+}
+
+.adm-field-error {
+  font-size: 12px;
+  color: var(--adm-danger-ink);
+}
+
+.adm-input[aria-invalid='true'],
+.adm-select[aria-invalid='true'] {
+  border-color: var(--adm-danger-ink);
+}
+
+.adm-badge-image-preview {
+  background: #f6f6f6;
+}
+
+/* Badge listing table */
+.adm-badge-table .adm-table th:nth-child(1),
+.adm-badge-table .adm-table td:nth-child(1) {
+  min-width: 200px;
+}
+
+.adm-badge-name-ar {
+  display: block;
+  text-align: left;
+  unicode-bidi: isolate;
+  font-family: 'IBM Plex Sans Arabic', var(--adm-font);
+}
+
+/* Consistent thumbnail box; the image keeps its aspect ratio inside it. */
+.adm-badge-thumb {
+  width: 48px;
+  height: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border: 1px solid var(--adm-border);
+  border-radius: 8px;
+  background: #ffffff;
+  overflow: hidden;
+  vertical-align: middle;
+}
+
+.adm-badge-thumb img {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+
+.adm-badge-thumb--empty {
+  background: var(--adm-surface-3);
+  color: var(--adm-text-3);
+  border-style: dashed;
+}
+
+@media (max-width: 760px) {
+  .adm-badge-table .adm-table th,
+  .adm-badge-table .adm-table td {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .adm-badge-table .adm-table th:nth-child(1),
+  .adm-badge-table .adm-table td:nth-child(1) {
+    min-width: 160px;
+  }
+}

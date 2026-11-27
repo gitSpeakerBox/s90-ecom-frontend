@@ -1,0 +1,55 @@
+/* Admin › Users listing. All selectors are .adm-* scoped. */
+
+.adm-users-table .adm-table th:nth-child(1),
+.adm-users-table .adm-table td:nth-child(1) {
+  min-width: 190px;
+}
+
+/* Keep addresses on one line; on narrow screens the table scrolls instead. */
+.adm-users-email {
+  white-space: nowrap;
+}
+
+.adm-signin-list {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.adm-signin-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 24px;
+  padding: 0 8px;
+  border: 1px solid var(--adm-border-strong);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 550;
+  color: var(--adm-text-2);
+  background: var(--adm-surface);
+  white-space: nowrap;
+}
+
+.adm-signin-chip svg {
+  color: var(--adm-text-3);
+}
+
+.adm-users-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+@media (max-width: 760px) {
+  .adm-users-table .adm-table th,
+  .adm-users-table .adm-table td {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .adm-users-table .adm-table th:nth-child(1),
+  .adm-users-table .adm-table td:nth-child(1) {
+    min-width: 160px;
+  }
+}

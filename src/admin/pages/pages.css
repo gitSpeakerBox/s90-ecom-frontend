@@ -1,0 +1,353 @@
+/* Page-level pieces shared by several admin pages. All selectors are .adm-* scoped. */
+
+.adm-summary-list {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.adm-summary-list > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--adm-border);
+  font-size: 13.5px;
+}
+
+.adm-summary-list > div:first-child {
+  padding-top: 0;
+}
+
+.adm-summary-list > div:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.adm-summary-list dt {
+  color: var(--adm-text-2);
+}
+
+.adm-summary-list dd {
+  margin: 0;
+  font-weight: 600;
+  text-align: right;
+}
+
+/* Order detail */
+.adm-order-items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.adm-order-items li {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+}
+
+.adm-order-items .adm-thumb {
+  width: 52px;
+  height: 52px;
+}
+
+.adm-order-totals {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--adm-border-strong);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13.5px;
+}
+
+.adm-order-totals div {
+  display: flex;
+  justify-content: space-between;
+}
+
+.adm-order-totals .is-total {
+  font-weight: 650;
+  font-size: 15px;
+}
+
+.adm-timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  position: relative;
+}
+
+.adm-timeline li {
+  position: relative;
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr);
+  gap: 12px;
+  padding-bottom: 16px;
+}
+
+.adm-timeline li:last-child {
+  padding-bottom: 0;
+}
+
+.adm-timeline li::before {
+  content: '';
+  position: absolute;
+  left: 10px;
+  top: 22px;
+  bottom: 0;
+  width: 2px;
+  background: var(--adm-border);
+}
+
+.adm-timeline li:last-child::before {
+  display: none;
+}
+
+.adm-timeline li.is-done::before {
+  background: #9fcf9f;
+}
+
+.adm-timeline__dot {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid var(--adm-border-strong);
+  background: var(--adm-surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+}
+
+.adm-timeline li.is-done .adm-timeline__dot {
+  background: #0b7a0b;
+  border-color: #0b7a0b;
+}
+
+.adm-timeline li.is-current .adm-timeline__dot {
+  box-shadow: 0 0 0 4px #d8eed8;
+}
+
+.adm-timeline__title {
+  font-weight: 550;
+  font-size: 13.5px;
+}
+
+.adm-timeline__meta {
+  font-size: 12px;
+  color: var(--adm-text-3);
+}
+
+.adm-status-update {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.adm-status-update .adm-field {
+  flex: 1 1 200px;
+}
+
+/* Banner cards (hero banners page) */
+.adm-banner-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 16px;
+}
+
+.adm-banner-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--adm-surface);
+  border: 1px solid var(--adm-border);
+  border-radius: var(--adm-radius-lg);
+  overflow: hidden;
+  box-shadow: var(--adm-shadow-sm);
+}
+
+.adm-banner-card.is-hidden .adm-banner-card__media {
+  filter: grayscale(0.85);
+  opacity: 0.55;
+}
+
+.adm-banner-card__media {
+  position: relative;
+  aspect-ratio: 16 / 7;
+  background: #1a1a1a;
+  overflow: hidden;
+}
+
+.adm-banner-card__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.adm-banner-card__overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 4px;
+  padding: 16px 18px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0) 70%);
+  color: #fff;
+}
+
+.adm-banner-card__eyebrow {
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+
+.adm-banner-card__headline {
+  font-family: var(--font-headline, Georgia, serif);
+  font-size: 24px;
+  line-height: 1.05;
+  font-weight: 500;
+  white-space: pre-line;
+}
+
+.adm-banner-card__position {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+}
+
+.adm-banner-card__body {
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.adm-banner-card__text {
+  color: var(--adm-text-2);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.adm-banner-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.adm-banner-card__footer {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px 10px 16px;
+  border-top: 1px solid var(--adm-border);
+  background: var(--adm-surface-2);
+}
+
+.adm-locale-tabs {
+  margin-bottom: 16px;
+}
+
+.adm-group-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.adm-group-header h2 {
+  font-size: 16px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+.adm-group-header p {
+  font-size: 13px;
+  color: var(--adm-text-3);
+}
+
+/* Users */
+.adm-staff-empty {
+  border: 1px dashed var(--adm-border-strong);
+  border-radius: var(--adm-radius);
+  margin: 16px;
+}
+
+/* Reports */
+.adm-filter-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.adm-date-inputs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.adm-date-inputs .adm-input {
+  width: 150px;
+}
+
+@media (max-width: 760px) {
+  .adm-banner-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .adm-date-inputs {
+    width: 100%;
+  }
+
+  .adm-date-inputs .adm-input {
+    flex: 1;
+    width: auto;
+  }
+}
+
+/* Orders page — new-order notification bell */
+.adm-order-bell {
+  position: relative;
+  width: 38px;
+  height: 38px;
+  color: var(--adm-text);
+}
+
+.adm-order-bell__count {
+  position: absolute;
+  top: -9px;
+  right: -10px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  border: 2px solid var(--adm-bg);
+  background: #d03b3b;
+  color: #ffffff;
+  font-size: 10.5px;
+  font-weight: 700;
+  line-height: 14px;
+  text-align: center;
+  box-sizing: content-box;
+}
+
+/* Dashboard — Recent orders rows are not interactive */
+.adm-recent-orders .adm-table tbody tr:hover {
+  background: transparent;
+}
