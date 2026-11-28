@@ -63,6 +63,13 @@ export interface JerseyCustomizationOptions {
   patchOptions?: string[];
 }
 
+/** Matching-shorts add-on set in Admin › Products. */
+export interface JerseyShortsOption {
+  enabled: boolean;
+  /** Shorts price in QAR, added to the jersey only when the customer selects shorts. */
+  price: number;
+}
+
 export interface JerseyComparisonImages {
   stadiumImage: string;
   authenticImage: string;
@@ -124,6 +131,12 @@ export interface BaseProduct {
   ratingDetails?: ProductRating;
   isFeatured: boolean;
   featured: boolean;
+  /**
+   * Admin Category (collection slug, see user/data/collections) chosen in
+   * Admin › Products. When set, the product always belongs to that category.
+   * Unset for catalog products, whose categories come from the rules.
+   */
+  categorySlug?: string;
 }
 
 /**
@@ -140,6 +153,8 @@ export interface JerseyProduct extends BaseProduct {
   fit: 'Slim Fit' | 'Regular Fit' | 'Athletic Fit' | 'Relaxed Vintage Fit';
   material: string;
   customization?: JerseyCustomizationOptions;
+  /** Unset = shorts offered at the standard price (catalog behaviour before this setting existed). */
+  shorts?: JerseyShortsOption;
   comparisonImages?: JerseyComparisonImages;
 }
 

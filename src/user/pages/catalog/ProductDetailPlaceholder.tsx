@@ -30,7 +30,16 @@ import { formatPrice } from '../../../shared/utils/formatters'
 import { ProductCard } from '../../components/products/ProductCard'
 import type { JerseyProduct, ShoeProduct } from '../../../shared/types/product'
 import { visibleBadgesFor, visibleSponsorsFor } from '../../../shared/services/badgeService'
+import { JERSEY_OPTION_PRICES } from '../../constants/jerseyOptions'
+import { allowsNameNumber, isSizeAvailable, shortsOptionFor } from '../../../shared/services/productOptions'
 import './ProductDetailPlaceholder.css'
+
+// Jersey option surcharges (shared with Admin › Manual Order).
+const {
+  authentic: authenticExtra,
+  competitionBadge: badgeExtra,
+  personalisation: personalExtra,
+} = JERSEY_OPTION_PRICES
 
 export const ProductDetailPlaceholder: React.FC = () => {
   const { t, language, currency } = useLocale()
@@ -391,12 +400,14 @@ export const ProductDetailPlaceholder: React.FC = () => {
 
   // Pricing calculations
   const basePrice = product?.price || 0
-  const authenticExtra = 26
-  const badgeExtra = 11
-  const personalExtra = 25
-  const shortsExtra = 132
 
-  const hasPersonalisation = customName.trim().length > 0 || customNumber.trim().length > 0
+  // Per-product options set in Admin › Products.
+  const canPersonalise = rawProduct ? allowsNameNumber(rawProduct) : false
+  const shortsOption = rawProduct ? shortsOptionFor(rawProduct) : null
+  const shortsExtra = shortsOption?.price ?? 0
+  const wantsShorts = Boolean(shortsOption) && addShorts
+
+  const hasPersonalisation = canPersonalise && (customName.trim().length > 0 || customNumber.trim().length > 0)
 
   const totalPrice = useMemo(() => {
     let sum = basePrice
@@ -408,12 +419,12 @@ export const ProductDetailPlaceholder: React.FC = () => {
       if (hasPersonalisation) {
         sum += personalExtra
       }
-      if (addShorts) {
+      if (wantsShorts) {
         sum += shortsExtra
       }
     }
     return sum
-  }, [basePrice, isJersey, selectedStyle, selectedBadges, hasPersonalisation, addShorts])
+  }, [basePrice, isJersey, selectedStyle, selectedBadges, hasPersonalisation, wantsShorts, shortsExtra])
 
   const formattedTotalPrice = formatPrice(totalPrice, language, currency)
   const formattedAuthenticExtra = formatPrice(authenticExtra, language, currency)
@@ -489,7 +500,8 @@ export const ProductDetailPlaceholder: React.FC = () => {
 
   // Add to Bag handler
   const handleAddToBag = () => {
-    if (!selectedSize) {
+    if (!selectedSize || !isSizeAvailable(rawProduct, selectedSize)) {
+      setSelectedSize(null)
       setSizeError(true)
       return
     }
@@ -503,7 +515,7 @@ export const ProductDetailPlaceholder: React.FC = () => {
       if (hasPersonalisation) {
         customNotes.push(`Name: ${customName.toUpperCase().trim() || 'N/A'}, #${customNumber.trim() || '0'}`)
       }
-      if (addShorts) customNotes.push('Includes Matching Shorts')
+      if (wantsShorts) customNotes.push('Includes Matching Shorts')
     }
 
     const itemTitle = customNotes.length > 0
@@ -518,6 +530,7 @@ export const ProductDetailPlaceholder: React.FC = () => {
       name: itemTitle,
       image: activeMainImage,
       brandOrTeam: isJersey ? jerseyProduct?.team : shoeProduct?.brand,
+      options: customNotes,
     })
 
     setIsAdded(true)
@@ -681,8 +694,8 @@ export const ProductDetailPlaceholder: React.FC = () => {
             </div>
           )}
 
-          {/* Personalisation Box */}
-          {isJersey && (
+          {/* Personalisation Box (only when Admin allows name & number) */}
+          {isJersey && canPersonalise && (
             <div className="personalise-box">
               <div className="personalise-box-header">
                 <Sparkles size={14} className="personalise-sparkle" />
@@ -736,12 +749,17 @@ export const ProductDetailPlaceholder: React.FC = () => {
             <div className="size-selector-grid">
               {product.availableSizes.map((sz) => {
                 const isSelected = String(selectedSize) === String(sz)
+                const isUnavailable = !isSizeAvailable(rawProduct, sz)
                 return (
                   <button
                     key={String(sz)}
                     type="button"
-                    className={`size-chip-box ${isSelected ? 'is-selected' : ''}`}
+                    className={`size-chip-box ${isSelected ? 'is-selected' : ''} ${isUnavailable ? 'is-unavailable' : ''}`}
+                    disabled={isUnavailable}
+                    aria-label={isUnavailable ? `${String(sz)} – ${t('productDetail.sizeUnavailable', { defaultValue: 'unavailable' })}` : undefined}
+                    title={isUnavailable ? t('productDetail.sizeUnavailable', { defaultValue: 'unavailable' }) : undefined}
                     onClick={() => {
+                      if (isUnavailable) return
                       setSelectedSize(sz)
                       setSizeError(false)
                     }}
@@ -756,8 +774,8 @@ export const ProductDetailPlaceholder: React.FC = () => {
             )}
           </div>
 
-          {/* Add Matching Shorts Checkbox */}
-          {isJersey && (
+          {/* Add Matching Shorts Checkbox (only when Admin offers shorts) */}
+          {isJersey && shortsOption && (
             <div className="add-shorts-box">
               <label className="shorts-checkbox-label">
                 <input

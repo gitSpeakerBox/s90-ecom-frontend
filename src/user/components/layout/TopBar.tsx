@@ -74,9 +74,8 @@ export const TopBar = ({
     <div className="top-bar-block">
       {/* Utility Bar */}
       <div className="top-utility-bar">
-        {/* Top-Left: Language Switch and Detected Country (Vertical Layout) */}
+        {/* Top-Left: Language Switch */}
         <div className="top-utility-left">
-          {/* First row: Language Switch */}
           <div
             className="top-utility-lang"
             role="group"
@@ -102,8 +101,11 @@ export const TopBar = ({
               {t('topBar.arabic')}
             </button>
           </div>
+        </div>
 
-          {/* Second row: Country Selector Dropdown */}
+        {/* Top-Right: Country / Currency Selector */}
+        <div className="top-utility-right">
+          {/* Country / currency selector */}
           <div className="top-utility-country" ref={dropdownRef}>
             <button
               type="button"

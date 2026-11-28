@@ -1,328 +1,343 @@
 import { useState } from 'react'
-import { ChartColumn, CircleDollarSign, Download, Package, Receipt, ShoppingBag } from 'lucide-react'
+import { Eye, FileDown, ReceiptText } from 'lucide-react'
+import type { Order, OrderStatus } from '../../shared/types/order'
 import { PageHeader } from '../components/PageHeader'
 import { Card } from '../components/Card'
-import { MetricCard } from '../components/MetricCard'
-import { SegmentedControl } from '../components/Filters'
+import { Dialog } from '../components/Dialog'
+import { ResultCount, SearchInput, SelectFilter } from '../components/Filters'
 import { DataTable } from '../components/DataTable'
-import type { Column } from '../utils/table'
+import type { Column, SortState } from '../utils/table'
+import { sortRows } from '../utils/table'
+import { Pagination } from '../components/Pagination'
 import { EmptyState } from '../components/EmptyState'
-import { Badge } from '../components/StatusBadge'
-import { RevenueAreaChart } from '../components/charts/RevenueAreaChart'
-import { SalesBarChart } from '../components/charts/SalesBarChart'
-import { BarList } from '../components/charts/BarList'
+import { OrderStatusBadge, PaymentStatusBadge } from '../components/StatusBadge'
 import { useAdminData } from '../context/AdminDataContext'
-import { earliestOrderDate, listOrders, sortByDateDesc } from '../services/orderAdminService'
+import { usePagination } from '../hooks/usePagination'
+import { earliestOrderDate, getPaymentStatus, listOrders, orderUnits } from '../services/orderAdminService'
 import {
-  categorySales,
-  dailySales,
-  ordersInRange,
-  productSales,
-  summarize,
-  timeSeries,
-} from '../services/analyticsService'
-import { REPORT_PRESETS, describeRange, granularityFor, resolvePreset } from '../utils/dateRange'
-import { downloadCsv } from '../utils/csv'
-import { TYPE_COLORS } from '../utils/status'
-import { formatDate, money, num, pct, toISODate } from '../utils/format'
-import type { CategorySalesRow, DailySalesRow, DatePreset, ProductSalesRow } from '../types/admin'
+  convertOrderAmount,
+  filterSalesOrders,
+  displayOrderAmount,
+  REPORT_CURRENCY_SYMBOL,
+  orderDiscount,
+  paymentMethodOptions,
+} from '../services/salesReportService'
+import type { PaymentMethodType } from '../services/salesReportService'
+import { buildSalesReportPdf } from '../services/salesReportPdf'
+import { downloadPdf } from '../utils/pdf'
+import { REPORT_PRESETS, describeRange, resolvePreset } from '../utils/dateRange'
+import { ORDER_STATUSES, ORDER_STATUS_META } from '../utils/status'
+import { BASE_REVENUE_CURRENCY, REVENUE_CURRENCIES } from '../utils/revenueCurrency'
+import type { RevenueCurrency } from '../utils/revenueCurrency'
+import { formatDate, num, toISODate } from '../utils/format'
+import type { DatePreset } from '../types/admin'
 import './pages.css'
+import './SalesReportsPage.css'
+
+const PAGE_SIZE = 10
 
 export function SalesReportsPage() {
-  useAdminData() // subscribe: re-render after every admin commit
+  useAdminData() // subscribe: re-render after every admin commit (e.g. order status changes)
+  const [query, setQuery] = useState('')
   const [preset, setPreset] = useState<DatePreset>('all')
   const [custom, setCustom] = useState(() => {
     const today = toISODate(new Date())
     return { from: earliestOrderDate() ?? today, to: today }
   })
+  const [payment, setPayment] = useState<PaymentMethodType | 'all'>('all')
+  const [status, setStatus] = useState<OrderStatus | 'all'>('all')
+  const [currency, setCurrency] = useState<RevenueCurrency>(BASE_REVENUE_CURRENCY)
+  const [sort, setSort] = useState<SortState>({ key: 'date', dir: 'desc' })
+  const [viewId, setViewId] = useState<string | null>(null)
 
-  const report = (() => {
-    const range = resolvePreset(preset, { earliest: earliestOrderDate(), custom })
-    const all = listOrders()
-    const orders = ordersInRange(all, range)
-    const granularity = granularityFor(range)
-    return {
-      range,
-      all,
-      orders,
-      granularity,
-      summary: summarize(orders),
-      series: timeSeries(all, range, granularity),
-      daily: dailySales(orders),
-      products: productSales(orders),
-      categories: categorySales(orders),
-    }
-  })()
+  const all = listOrders()
+  const range = resolvePreset(preset, { earliest: earliestOrderDate(), custom })
+  const rangeLabel = describeRange(range)
+  const filtered = filterSalesOrders(all, { query, range, payment, status })
 
-  const { summary, range } = report
-  const stamp = `${toISODate(range.start)}_to_${toISODate(range.end)}`
-  const empty = report.orders.length === 0
-
-  const exportDaily = () =>
-    downloadCsv(
-      `s90-demo-revenue-by-date_${stamp}.csv`,
-      ['Date', 'Orders', 'Units', 'Revenue (QAR)', 'Source'],
-      report.daily.map((d) => [d.date, d.orders, d.units, d.revenue.toFixed(2), 'Demo data'])
-    )
-
-  const exportProducts = () =>
-    downloadCsv(
-      `s90-demo-best-sellers_${stamp}.csv`,
-      ['Product', 'Slug', 'Product line', 'Category', 'Orders', 'Units', 'Revenue (QAR)', 'Source'],
-      report.products.map((p) => [
-        p.name,
-        p.slug,
-        p.type === 'jerseys' ? 'Jerseys' : 'Shoes',
-        p.category,
-        p.orders,
-        p.units,
-        p.revenue.toFixed(2),
-        'Demo data',
-      ])
-    )
-
-  const exportCategories = () =>
-    downloadCsv(
-      `s90-demo-sales-by-category_${stamp}.csv`,
-      ['Category', 'Product line', 'Units', 'Revenue (QAR)', 'Share of line revenue', 'Source'],
-      report.categories.map((c) => [
-        c.category,
-        c.type === 'jerseys' ? 'Jerseys' : 'Shoes',
-        c.units,
-        c.revenue.toFixed(2),
-        pct(c.share, 1),
-        'Demo data',
-      ])
-    )
-
-  const exportOrders = () =>
-    downloadCsv(
-      `s90-demo-order-lines_${stamp}.csv`,
-      ['Order ID', 'Date', 'Status', 'Customer', 'Product', 'Size', 'Quantity', 'Unit price (QAR)', 'Line total (QAR)', 'Order total (QAR)', 'Source'],
-      sortByDateDesc(report.orders).flatMap((o) =>
-        o.items.map((i) => [
-          o.id,
-          o.date,
-          o.status,
-          o.shippingAddress.fullName,
-          i.productName,
-          i.size,
-          i.quantity,
-          i.price.toFixed(2),
-          (i.price * i.quantity).toFixed(2),
-          o.total.toFixed(2),
-          'Demo data',
-        ])
-      )
-    )
-
-  const dailyColumns: Column<DailySalesRow>[] = [
-    { key: 'date', header: 'Date', render: (d) => formatDate(d.date), sortValue: (d) => d.date, nowrap: true },
-    { key: 'orders', header: 'Orders', align: 'right', render: (d) => <span className="adm-num">{num(d.orders)}</span>, sortValue: (d) => d.orders },
-    { key: 'units', header: 'Units', align: 'right', render: (d) => <span className="adm-num">{num(d.units)}</span>, sortValue: (d) => d.units },
+  const columns: Column<Order>[] = [
     {
-      key: 'aov',
-      header: 'Avg. order',
-      align: 'right',
-      render: (d) => <span className="adm-num">{money(d.revenue / d.orders)}</span>,
-      sortValue: (d) => d.revenue / d.orders,
+      key: 'customer',
+      header: 'Customer Name',
+      render: (o) => <span className="adm-cell-primary">{o.shippingAddress.fullName || '—'}</span>,
+      sortValue: (o) => o.shippingAddress.fullName.toLowerCase(),
+    },
+    { key: 'id', header: 'Order ID', render: (o) => <span className="adm-num">{o.id}</span>, sortValue: (o) => o.id },
+    { key: 'date', header: 'Date', render: (o) => formatDate(o.date), sortValue: (o) => o.date },
+    {
+      key: 'payment',
+      header: 'Payment Method',
+      render: (o) => <span className="adm-sales-payment">{o.paymentMethod || '—'}</span>,
+      sortValue: (o) => o.paymentMethod,
     },
     {
-      key: 'revenue',
-      header: 'Revenue',
+      key: 'discount',
+      header: 'Discount',
       align: 'right',
-      nowrap: true,
-      render: (d) => <span className="adm-num adm-cell-primary">{money(d.revenue)}</span>,
-      sortValue: (d) => d.revenue,
+      render: (o) => {
+        const d = orderDiscount(o)
+        return <span className={`adm-num ${d ? '' : 'adm-muted'}`}>{displayOrderAmount(o, d, currency)}</span>
+      },
+      sortValue: (o) => convertOrderAmount(o, orderDiscount(o), currency),
     },
-  ]
-
-  const productColumns: Column<ProductSalesRow>[] = [
     {
-      key: 'name',
-      header: 'Product',
-      render: (p) => (
-        <div className="adm-cell-media">
-          <img src={p.image} alt="" className="adm-thumb" loading="lazy" />
-          <div>
-            <div className="adm-cell-primary">{p.name}</div>
-            <div className="adm-cell-secondary">{p.category}</div>
-          </div>
-        </div>
+      key: 'status',
+      header: 'Order Status',
+      render: (o) => <OrderStatusBadge status={o.status} />,
+      sortValue: (o) => ORDER_STATUSES.indexOf(o.status),
+    },
+    {
+      key: 'total',
+      header: 'Total Amount',
+      align: 'right',
+      render: (o) => <span className="adm-num adm-cell-primary">{displayOrderAmount(o, o.total, currency)}</span>,
+      sortValue: (o) => convertOrderAmount(o, o.total, currency),
+    },
+    {
+      key: 'view',
+      header: 'View',
+      align: 'center',
+      render: (o) => (
+        <button
+          type="button"
+          className="adm-icon-btn"
+          title="View order details"
+          aria-label={`View order ${o.id}`}
+          onClick={() => setViewId(o.id)}
+        >
+          <Eye size={16} aria-hidden="true" />
+        </button>
       ),
-      sortValue: (p) => p.name,
-    },
-    {
-      key: 'type',
-      header: 'Line',
-      render: (p) => <Badge tone="neutral" dotColor={TYPE_COLORS[p.type]}>{p.type === 'jerseys' ? 'Jerseys' : 'Shoes'}</Badge>,
-      sortValue: (p) => p.type,
-    },
-    { key: 'orders', header: 'Orders', align: 'right', render: (p) => <span className="adm-num">{num(p.orders)}</span>, sortValue: (p) => p.orders },
-    { key: 'units', header: 'Units', align: 'right', render: (p) => <span className="adm-num">{num(p.units)}</span>, sortValue: (p) => p.units },
-    {
-      key: 'revenue',
-      header: 'Revenue',
-      align: 'right',
-      nowrap: true,
-      render: (p) => <span className="adm-num adm-cell-primary">{money(p.revenue)}</span>,
-      sortValue: (p) => p.revenue,
     },
   ]
 
-  const categoryColumns: Column<CategorySalesRow>[] = [
-    {
-      key: 'category',
-      header: 'Category',
-      render: (c) => <span className="adm-cell-primary">{c.category}</span>,
-      sortValue: (c) => c.category,
-    },
-    {
-      key: 'type',
-      header: 'Line',
-      render: (c) => <Badge tone="neutral" dotColor={TYPE_COLORS[c.type]}>{c.type === 'jerseys' ? 'Jerseys' : 'Shoes'}</Badge>,
-    },
-    { key: 'units', header: 'Units', align: 'right', render: (c) => <span className="adm-num">{num(c.units)}</span>, sortValue: (c) => c.units },
-    { key: 'share', header: 'Share', align: 'right', render: (c) => <span className="adm-num">{pct(c.share, 1)}</span>, sortValue: (c) => c.share },
-    {
-      key: 'revenue',
-      header: 'Revenue',
-      align: 'right',
-      nowrap: true,
-      render: (c) => <span className="adm-num adm-cell-primary">{money(c.revenue)}</span>,
-      sortValue: (c) => c.revenue,
-    },
-  ]
+  const rows = sortRows(filtered, columns, sort)
+  const pagination = usePagination(rows, PAGE_SIZE)
+  const viewing = viewId ? (all.find((o) => o.id === viewId) ?? null) : null
+  const resetPage = <V,>(setter: (v: V) => void) => (v: V) => {
+    setter(v)
+    pagination.setPage(1)
+  }
+  const hasFilters = Boolean(query.trim()) || preset !== 'all' || payment !== 'all' || status !== 'all'
 
-  const exportButton = (onClick: () => void, label = 'Export CSV') => (
-    <button type="button" className="adm-btn adm-btn--sm" onClick={onClick} disabled={empty}>
-      <Download size={14} aria-hidden="true" /> {label}
-    </button>
-  )
+  const activeFilters = [
+    query.trim() && `Search: “${query.trim()}”`,
+    payment !== 'all' && `Payment method: ${payment}`,
+    status !== 'all' && `Order status: ${ORDER_STATUS_META[status].label}`,
+  ].filter(Boolean) as string[]
+
+  const exportPdf = () => {
+    const bytes = buildSalesReportPdf({ orders: rows, currency, rangeLabel, filters: activeFilters })
+    downloadPdf(`s90-sales-report_${toISODate(range.start)}_to_${toISODate(range.end)}_${currency}.pdf`, bytes)
+  }
 
   return (
     <div className="adm-stack">
-      <PageHeader
-        title="Sales Reports"
-        subtitle={describeRange(range)}
-        actions={
-          <>
-            <button type="button" className="adm-btn adm-btn--primary" onClick={exportOrders} disabled={empty}>
-              <Download size={15} aria-hidden="true" /> Export order lines
-            </button>
-          </>
-        }
-      />
+      <PageHeader title="Sales Reports" subtitle={`Orders placed ${rangeLabel}`} />
 
-      
-
-      <div className="adm-filter-row">
-        <SegmentedControl label="Report period" value={preset} onChange={setPreset} options={REPORT_PRESETS} />
-        {preset === 'custom' && (
-          <div className="adm-date-inputs">
-            <label className="adm-sr-only" htmlFor="report-from">
-              From
-            </label>
-            <input
-              id="report-from"
-              type="date"
-              className="adm-input"
-              value={custom.from}
-              max={custom.to}
-              onChange={(e) => e.target.value && setCustom((c) => ({ ...c, from: e.target.value }))}
-            />
-            <span className="adm-muted">to</span>
-            <label className="adm-sr-only" htmlFor="report-to">
-              To
-            </label>
-            <input
-              id="report-to"
-              type="date"
-              className="adm-input"
-              value={custom.to}
-              min={custom.from}
-              onChange={(e) => e.target.value && setCustom((c) => ({ ...c, to: e.target.value }))}
-            />
-          </div>
-        )}
-      </div>
-
-      <div className="adm-grid adm-grid--metrics adm-grid--4">
-        <MetricCard label="Total sales" value={`${num(summary.units)} units`} icon={Package} hint="Items sold in the period" />
-        <MetricCard label="Revenue" value={money(summary.revenue)} icon={CircleDollarSign} hint="Order totals" />
-        <MetricCard label="Orders" value={num(summary.orders)} icon={ShoppingBag} hint="Orders placed" />
-        <MetricCard
-          label="Average order value"
-          value={summary.orders ? money(summary.averageOrderValue) : '—'}
-          icon={Receipt}
-          hint="Revenue ÷ orders"
-        />
-      </div>
-
-      {empty ? (
-        <Card>
-          <EmptyState
-            icon={ChartColumn}
-            title="No orders in this period"
-            text="The demo orders fall between their earliest and latest dates — choose “All time” or widen the custom range."
+      <Card flush>
+        <div className="adm-toolbar adm-sales-toolbar">
+          <SearchInput
+            value={query}
+            onChange={resetPage(setQuery)}
+            placeholder="Search customer name or order ID…"
+            label="Search customer name or order ID"
           />
-        </Card>
-      ) : (
-        <>
-          <div className="adm-grid adm-grid--1-1">
-            <Card title="Sales trend" subtitle={report.granularity === 'day' ? 'Daily revenue' : 'Monthly revenue'}>
-              <RevenueAreaChart data={report.series} height={260} />
-            </Card>
-            <Card title="Revenue by product line" subtitle={report.granularity === 'day' ? 'Per day' : 'Per month'}>
-              <SalesBarChart data={report.series} height={260} />
-            </Card>
-          </div>
-
-          <Card title="Revenue by date" subtitle="Days with at least one order" flush actions={exportButton(exportDaily)}>
-            <DataTable
-              caption="Revenue by date"
-              columns={dailyColumns}
-              rows={report.daily}
-              rowKey={(d) => d.date}
-              defaultSort={{ key: 'date', dir: 'desc' }}
-            />
-          </Card>
-
-          <div className="adm-grid adm-grid--2-1">
-            <Card title="Best-selling products" subtitle="Ranked by line revenue" flush actions={exportButton(exportProducts)}>
-              <DataTable
-                caption="Best-selling products"
-                columns={productColumns}
-                rows={report.products}
-                rowKey={(p) => p.slug}
-                defaultSort={{ key: 'revenue', dir: 'desc' }}
+          <SelectFilter
+            label="Date range"
+            value={preset}
+            onChange={resetPage((v: string) => setPreset(v as DatePreset))}
+            options={REPORT_PRESETS.map((p) => ({ value: p.value, label: p.value === 'all' ? 'All dates' : p.value === 'custom' ? 'Custom range' : `Last ${p.label}` }))}
+          />
+          {preset === 'custom' && (
+            <div className="adm-date-inputs">
+              <label className="adm-sr-only" htmlFor="sales-from">
+                From
+              </label>
+              <input
+                id="sales-from"
+                type="date"
+                className="adm-input"
+                value={custom.from}
+                max={custom.to}
+                onChange={(e) => e.target.value && resetPage(setCustom)({ ...custom, from: e.target.value })}
               />
-            </Card>
-            <Card title="Sales by category" subtitle="Catalog category of each sold product" actions={exportButton(exportCategories)}>
-              <BarList
-                items={report.categories.map((c) => ({
-                  key: c.category,
-                  name: c.category,
-                  meta: `${num(c.units)} unit${c.units === 1 ? '' : 's'} · ${pct(c.share, 1)}`,
-                  value: c.revenue,
-                  valueLabel: money(c.revenue, { compact: true }),
-                  color: TYPE_COLORS[c.type],
-                }))}
+              <span className="adm-muted">to</span>
+              <label className="adm-sr-only" htmlFor="sales-to">
+                To
+              </label>
+              <input
+                id="sales-to"
+                type="date"
+                className="adm-input"
+                value={custom.to}
+                min={custom.from}
+                onChange={(e) => e.target.value && resetPage(setCustom)({ ...custom, to: e.target.value })}
               />
-            </Card>
-          </div>
+            </div>
+          )}
+          <SelectFilter
+            label="Payment method"
+            value={payment}
+            onChange={resetPage((v: string) => setPayment(v as PaymentMethodType | 'all'))}
+            options={[{ value: 'all', label: 'All payment methods' }, ...paymentMethodOptions(all).map((t) => ({ value: t, label: t }))]}
+          />
+          <SelectFilter
+            label="Order status"
+            value={status}
+            onChange={resetPage((v: string) => setStatus(v as OrderStatus | 'all'))}
+            options={[{ value: 'all', label: 'All statuses' }, ...ORDER_STATUSES.map((s) => ({ value: s, label: ORDER_STATUS_META[s].label }))]}
+          />
+          {hasFilters && (
+            <button
+              type="button"
+              className="adm-btn adm-btn--sm adm-btn--ghost"
+              onClick={() => {
+                setQuery('')
+                setPreset('all')
+                setPayment('all')
+                setStatus('all')
+                pagination.setPage(1)
+              }}
+            >
+              Clear filters
+            </button>
+          )}
+        </div>
+        <div className="adm-toolbar adm-sales-toolbar adm-sales-toolbar--meta">
+          <ResultCount shown={filtered.length} total={all.length} noun="orders" />
+          <span className="adm-toolbar__spacer" />
+          <select
+            className="adm-select adm-filter-select adm-sales-currency"
+            aria-label="Report currency"
+            title="Currency"
+            value={currency}
+            onChange={(e) => setCurrency(e.target.value as RevenueCurrency)}
+          >
+            {REVENUE_CURRENCIES.map((c) => (
+              <option key={c.code} value={c.code}>
+                {c.code} ({REPORT_CURRENCY_SYMBOL[c.code]})
+              </option>
+            ))}
+          </select>
+          <button type="button" className="adm-btn adm-btn--primary" onClick={exportPdf} disabled={filtered.length === 0}>
+            <FileDown size={16} aria-hidden="true" /> Export PDF
+          </button>
+        </div>
+        <div className="adm-sales-table">
+          <DataTable
+            caption="Sales report"
+            columns={columns}
+            rows={pagination.pageItems}
+            rowKey={(o) => o.id}
+            sortState={sort}
+            onSortChange={(s) => {
+              setSort(s)
+              pagination.setPage(1)
+            }}
+            empty={<EmptyState icon={ReceiptText} title="No orders match" text="Change the search, date range or filters to see orders." />}
+          />
+        </div>
+        {filtered.length > 0 && <Pagination state={pagination} noun="orders" showPageSize={false} showPageCount />}
+      </Card>
 
-          <Card title="Category breakdown" flush>
-            <DataTable
-              caption="Category breakdown"
-              columns={categoryColumns}
-              rows={report.categories}
-              rowKey={(c) => c.category}
-              defaultSort={{ key: 'revenue', dir: 'desc' }}
-            />
-          </Card>
-        </>
-      )}
+      <Dialog
+        open={Boolean(viewing)}
+        onClose={() => setViewId(null)}
+        title={viewing ? `Order ${viewing.id}` : ''}
+        subtitle={viewing ? `Placed ${formatDate(viewing.date)} · ${num(orderUnits(viewing))} item(s)` : undefined}
+      >
+        {viewing && <OrderDetails key={viewing.id} order={viewing} currency={currency} />}
+      </Dialog>
+    </div>
+  )
+}
+
+/** Read-only order details in the report currency (all amounts from the stored order). */
+function OrderDetails({ order, currency }: { order: Order; currency: RevenueCurrency }) {
+  const addr = order.shippingAddress
+  const amount = (value: number) => displayOrderAmount(order, value, currency)
+  const discount = orderDiscount(order)
+  return (
+    <div className="adm-sales-detail">
+      <div className="adm-dialog-section">
+        <div className="adm-sales-detail__badges">
+          <OrderStatusBadge status={order.status} />
+          <PaymentStatusBadge status={getPaymentStatus(order)} />
+        </div>
+      </div>
+
+      <div className="adm-dialog-section adm-sales-detail__grid">
+        <div>
+          <h3 className="adm-dialog-section__title">Customer</h3>
+          <dl className="adm-detail-list">
+            <dt>Name</dt>
+            <dd>{addr.fullName || '—'}</dd>
+            <dt>Email</dt>
+            {order.customerEmail ? <dd>{order.customerEmail}</dd> : <dd className="adm-muted">Not provided</dd>}
+            <dt>Phone</dt>
+            <dd>{addr.phone ?? <span className="adm-muted">Not provided</span>}</dd>
+            <dt>Order ID</dt>
+            <dd className="adm-num">{order.id}</dd>
+            <dt>Order date</dt>
+            <dd>{formatDate(order.date)}</dd>
+          </dl>
+        </div>
+        <div>
+          <h3 className="adm-dialog-section__title">Payment & delivery</h3>
+          <dl className="adm-detail-list">
+            <dt>Payment method</dt>
+            <dd>{order.paymentMethod || '—'}</dd>
+            <dt>Payment status</dt>
+            <dd>{getPaymentStatus(order)}</dd>
+            <dt>Order status</dt>
+            <dd>{ORDER_STATUS_META[order.status]?.label ?? order.status}</dd>
+            <dt>Delivery address</dt>
+            <dd>
+              {addr.street}
+              <br />
+              {[addr.city, addr.region, addr.country].filter(Boolean).join(', ')}
+              {addr.postalCode ? ` · ${addr.postalCode}` : ''}
+            </dd>
+          </dl>
+        </div>
+      </div>
+
+      <div className="adm-dialog-section">
+        <h3 className="adm-dialog-section__title">Products</h3>
+        <ul className="adm-order-items">
+          {order.items.map((item, i) => (
+            <li key={`${item.productSlug}-${item.size}-${i}`}>
+              <img src={item.productImage} alt="" className="adm-thumb" />
+              <div style={{ minWidth: 0 }}>
+                <div className="adm-cell-primary">{item.productName}</div>
+                <div className="adm-cell-secondary">
+                  Size {item.size} · Qty {item.quantity} · {amount(item.price)} each
+                </div>
+              </div>
+              <span className="adm-num adm-cell-primary">{amount(item.price * item.quantity)}</span>
+            </li>
+          ))}
+        </ul>
+        <div className="adm-order-totals adm-num">
+          <div>
+            <span>Subtotal</span>
+            <span>{amount(order.subtotal)}</span>
+          </div>
+          <div>
+            <span>Discount</span>
+            <span>{discount ? `− ${amount(discount)}` : amount(0)}</span>
+          </div>
+          <div>
+            <span>Shipping</span>
+            <span>{order.shippingFee === 0 ? `Free (${amount(0)})` : amount(order.shippingFee)}</span>
+          </div>
+          <div className="is-total">
+            <span>Total</span>
+            <span>{amount(order.total)}</span>
+          </div>
+        </div>
+      </div>
     </div>
   )
 }

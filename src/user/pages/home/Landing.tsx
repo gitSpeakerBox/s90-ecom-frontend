@@ -8,6 +8,7 @@ import {
   getLandingShoesHeroSlides,
   getJerseysSubBanners,
   getShoesSubBanners,
+  heroTitleKey,
 } from '../../services/landingService'
 import { useLocale } from '../../context/LocaleContext'
 import './Landing.css'
@@ -23,7 +24,7 @@ export const Landing = () => {
     return jerseysSlidesData.map((slide) => ({
       image: slide.image,
       eyebrow: t(slide.eyebrowKey),
-      title: t(slide.titleKey),
+      title: t(heroTitleKey(slide)),
       text: t(slide.textKey),
       buttonLabel: t(slide.buttonLabelKey),
       to: slide.to,
@@ -35,7 +36,7 @@ export const Landing = () => {
     return shoesSlidesData.map((slide) => ({
       image: slide.image,
       eyebrow: t(slide.eyebrowKey),
-      title: t(slide.titleKey),
+      title: t(heroTitleKey(slide)),
       text: t(slide.textKey),
       buttonLabel: t(slide.buttonLabelKey),
       to: slide.to,

@@ -1,0 +1,67 @@
+/* Admin › Sub Banners. All selectors are .adm-* scoped. */
+
+.adm-sub-thumb {
+  display: block;
+  width: 72px;
+  height: 90px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--adm-border);
+  background: #f6f6f6;
+}
+
+.adm-sub-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.adm-sub-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.adm-sub-image-preview {
+  width: 200px;
+  max-width: 100%;
+  aspect-ratio: 4 / 5;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border: 1px dashed var(--adm-border-strong);
+  border-radius: var(--adm-radius);
+  background: #f6f6f6;
+  color: var(--adm-text-3);
+}
+
+.adm-sub-image-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Form messages (same convention as the other admin forms). */
+.adm-modal .adm-field-error {
+  font-size: 12px;
+  color: var(--adm-danger-ink);
+}
+
+.adm-modal .adm-required {
+  color: var(--adm-danger-ink);
+  margin-left: 2px;
+}
+
+.adm-modal .adm-input[aria-invalid='true'],
+.adm-modal .adm-select[aria-invalid='true'] {
+  border-color: var(--adm-danger-ink);
+}
+
+@media (max-width: 760px) {
+  .adm-sub-thumb {
+    width: 56px;
+    height: 70px;
+  }
+}

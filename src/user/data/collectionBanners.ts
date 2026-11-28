@@ -13,6 +13,8 @@ export interface CollectionBannerCard {
   bgGradient: string
   bgCardClass: string
   categoryValue: string
+  /** Category (collection slug) the card links to (Admin › Sub Banners); stored separately from its type. */
+  categorySlug?: string
 }
 
 export const NEUTRAL_CARD_BG = '#f5f6f8'

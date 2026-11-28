@@ -12,7 +12,8 @@
   height: auto;
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: space-between;
+  gap: 16px;
   padding-block: 4px;
   padding-inline: 48px;
   box-sizing: border-box;
@@ -28,6 +29,14 @@
   align-items: flex-start;
   justify-content: center;
   gap: 2px;
+}
+
+.top-utility-right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-inline-start: auto;
+  flex-shrink: 0;
 }
 
 .top-utility-divider {
@@ -159,7 +168,7 @@
 .country-dropdown-panel {
   position: absolute;
   top: calc(100% + 4px);
-  inset-inline-start: 0;
+  inset-inline-end: 0;
   width: 240px;
   max-height: 360px;
   overflow-y: auto;

@@ -13,12 +13,13 @@ import {
   Lock,
 } from 'lucide-react'
 import { useLocale } from '../../context/LocaleContext'
-import { useCart } from '../../context/CartContext'
+import { useCart, cartLineKey } from '../../context/CartContext'
 import { formatPrice } from '../../../shared/utils/formatters'
 import {
   FREE_SHIPPING_THRESHOLD,
   STANDARD_SHIPPING_FEE,
   DEMO_COUPONS,
+  calculateCartTotals,
   type CouponDefinition,
 } from '../../constants/cart'
 import visaLogo from '../../assets/payment/visa.svg'
@@ -74,30 +75,16 @@ export const CartTotalsBlock: React.FC<CartTotalsBlockProps> = ({
 
   const appliedCoupon = controlledCoupon !== undefined ? controlledCoupon : internalAppliedCoupon
 
-  const subtotal = items.reduce(
-    (sum, item) => sum + item.price * (item.quantity || 1),
-    0
-  )
-
-  const isFreeShipping = subtotal >= FREE_SHIPPING_THRESHOLD
+  // Totals rule shared with Admin › Manual Order (constants/cart.ts).
+  const totals = calculateCartTotals(items, appliedCoupon)
+  const { subtotal, isFreeShipping, shippingCost, discountAmount } = totals
   const remainingForFree = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal)
   const shippingProgressPct = Math.min(
     100,
     Math.max(0, (subtotal / FREE_SHIPPING_THRESHOLD) * 100)
   )
 
-  const shippingCost =
-    items.length === 0 || isFreeShipping ? 0 : STANDARD_SHIPPING_FEE
-
-  // Discount computation
-  const discountAmount = appliedCoupon
-    ? Math.round(((subtotal * appliedCoupon.discountPercent) / 100) * 100) / 100
-    : 0
-
-  const finalTotalWithDiscount = Math.max(
-    0,
-    subtotal - discountAmount + shippingCost
-  )
+  const finalTotalWithDiscount = totals.finalTotal
   const finalTotal = subtotal + shippingCost
 
   const isCartEmpty = items.length === 0
@@ -302,7 +289,7 @@ export const CartTotalsBlock: React.FC<CartTotalsBlockProps> = ({
         >
           {items.map((item) => (
             <CartItem
-              key={`${item.productSlug}-${item.size ?? 'default'}`}
+              key={cartLineKey(item)}
               item={item}
               variant="compact"
             />

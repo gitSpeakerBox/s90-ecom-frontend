@@ -12,7 +12,7 @@ import { Toggle } from '../components/Toggle'
 import { useAdminData } from '../context/AdminDataContext'
 import {
   HERO_BANNER_TYPES,
-  HERO_NAME_MAX,
+  HOME_PLACEMENTS,
   HERO_TEXT_MAX,
   createHeroBanner,
   deleteHeroBanner,
@@ -175,17 +175,23 @@ export function HeroBannersPage() {
 const HERO_IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/webp']
 const HERO_IMAGE_MAX_BYTES = 2 * 1024 * 1024
 
-/** Add / Edit Hero Banner form: names (EN/AR), Banner Type, banner text (EN/AR), Banner Image. */
+/** Add / Edit Hero Banner form: Banner Type (+ Home Placement), Categories, banner text (EN/AR), Banner Image. The headline is the category's name. */
 function HeroBannerForm({ row, onDone }: { row: HeroBannerView | null; onDone: () => void }) {
   const { commit } = useAdminData()
   const [values, setValues] = useState<HeroBannerInput>(() =>
-    row ? heroBannerValues(row) : { name: '', nameAr: '', type: '', text: '', textAr: '', category: '', image: '' }
+    row ? heroBannerValues(row) : { type: '', homePlacement: '', text: '', textAr: '', category: '', image: '' }
   )
   const [errors, setErrors] = useState<Partial<Record<keyof HeroBannerInput, string>>>({})
   const categoryOptions = heroCategoryOptions()
   const set = <K extends keyof HeroBannerInput>(key: K, value: HeroBannerInput[K]) => {
     setValues((v) => ({ ...v, [key]: value }))
     setErrors((e) => ({ ...e, [key]: undefined }))
+  }
+
+  /** Changing the type clears Home Placement unless the type is Home. */
+  const chooseType = (type: HeroBannerInput['type']) => {
+    setValues((v) => ({ ...v, type, homePlacement: type === 'Home' ? v.homePlacement : '' }))
+    setErrors((e) => ({ ...e, type: undefined, homePlacement: undefined }))
   }
 
   const onImage = (e: ChangeEvent<HTMLInputElement>) => {
@@ -210,12 +216,12 @@ function HeroBannerForm({ row, onDone }: { row: HeroBannerView | null; onDone: (
     e.preventDefault()
     const errs = validateHeroBanner(values)
     setErrors(errs)
-    const firstInvalid = (['name', 'nameAr', 'type', 'category', 'text', 'textAr', 'image'] as const).find((k) => errs[k])
+    const firstInvalid = (['type', 'homePlacement', 'category', 'text', 'textAr', 'image'] as const).find((k) => errs[k])
     if (firstInvalid) {
       e.currentTarget.querySelector<HTMLElement>(`[name="${firstInvalid}"]`)?.focus()
       return
     }
-    const name = values.name.trim()
+    const name = categoryOptions.find((o) => o.value === values.category)?.label ?? values.category
     commit(
       () => {
         if (row) updateHeroBanner(row, values)
@@ -241,46 +247,14 @@ function HeroBannerForm({ row, onDone }: { row: HeroBannerView | null; onDone: (
   return (
     <form onSubmit={submit} noValidate>
       <div className="adm-form-grid">
-        <label className="adm-field">
-          <span className="adm-label">Name (English) {required}</span>
-          <input
-            className="adm-input"
-            name="name"
-            value={values.name}
-            data-autofocus
-            maxLength={HERO_NAME_MAX}
-            placeholder="e.g. More Than A Game"
-            autoComplete="off"
-            onChange={(e) => set('name', e.target.value)}
-            {...invalid('name')}
-          />
-          {fieldError('name')}
-        </label>
-
-        <label className="adm-field">
-          <span className="adm-label">Name (Arabic) {required}</span>
-          <input
-            className="adm-input"
-            name="nameAr"
-            dir="rtl"
-            lang="ar"
-            value={values.nameAr}
-            maxLength={HERO_NAME_MAX}
-            placeholder="مثال: أكثر من مجرد لعبة"
-            autoComplete="off"
-            onChange={(e) => set('nameAr', e.target.value)}
-            {...invalid('nameAr')}
-          />
-          {fieldError('nameAr')}
-        </label>
-
         <label className="adm-field adm-field--full">
           <span className="adm-label">Banner Type {required}</span>
           <select
             className="adm-select"
             name="type"
             value={values.type}
-            onChange={(e) => set('type', e.target.value as HeroBannerInput['type'])}
+            data-autofocus
+            onChange={(e) => chooseType(e.target.value as HeroBannerInput['type'])}
             {...invalid('type')}
           >
             <option value="" disabled>
@@ -294,6 +268,29 @@ function HeroBannerForm({ row, onDone }: { row: HeroBannerView | null; onDone: (
           </select>
           {fieldError('type')}
         </label>
+
+        {values.type === 'Home' && (
+          <label className="adm-field adm-field--full">
+            <span className="adm-label">Home Placement {required}</span>
+            <select
+              className="adm-select"
+              name="homePlacement"
+              value={values.homePlacement}
+              onChange={(e) => set('homePlacement', e.target.value as HeroBannerInput['homePlacement'])}
+              {...invalid('homePlacement')}
+            >
+              <option value="" disabled>
+                Select a section
+              </option>
+              {HOME_PLACEMENTS.map((p) => (
+                <option key={p} value={p}>
+                  {p}
+                </option>
+              ))}
+            </select>
+            {fieldError('homePlacement') ?? <span className="adm-hint">The Home page section this banner appears in.</span>}
+          </label>
+        )}
 
         <label className="adm-field adm-field--full">
           <span className="adm-label">Categories {required}</span>
@@ -321,7 +318,7 @@ function HeroBannerForm({ row, onDone }: { row: HeroBannerView | null; onDone: (
             ))}
           </select>
           {fieldError('category') ?? (
-            <span className="adm-hint">Customers clicking the banner go to this category’s page.</span>
+            <span className="adm-hint">The category’s name is shown on the banner, and clicking it opens the category’s page.</span>
           )}
         </label>
 

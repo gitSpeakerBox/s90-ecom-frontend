@@ -356,6 +356,14 @@ export function isCollectionSlugActive(slug: string): boolean {
  * Same check for a storefront link. Links that are not collection pages
  * (e.g. "/jerseys") are always treated as active.
  */
+/** The category a "/collection/<slug>" link points to (slug or alias), if it is a known category. */
+export function collectionForPath(path: string | undefined): CollectionConfig | undefined {
+  const match = /^\/collections?\/([^/?#]+)/.exec(path ?? '')
+  if (!match) return undefined
+  const slug = decodeURIComponent(match[1]).toLowerCase()
+  return ALL_COLLECTION_CONFIGS.find((c) => c.slug === slug || c.aliases?.includes(slug))
+}
+
 export function isCollectionPathActive(path: string | undefined): boolean {
   const match = /^\/collections?\/([^/?#]+)/.exec(path ?? '')
   return match ? isCollectionSlugActive(decodeURIComponent(match[1])) : true

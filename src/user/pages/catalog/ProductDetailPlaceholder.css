@@ -2112,3 +2112,8 @@
   background: #ffffff;
   object-fit: contain;
 }
+
+/* Size marked unavailable in Admin › Products: shown, not selectable. */
+.size-chip-box.is-unavailable {
+  text-decoration: line-through;
+}

@@ -2,6 +2,7 @@ import type { Product, JerseyProduct, ShoeProduct } from '../../shared/types/pro
 import { allJerseys, allShoes, allProducts, getProductBySlug, getProductById } from '../../shared/data/products'
 import { arabicProductTranslations } from '../../shared/data/translations'
 import { isProductAvailable } from '../../shared/services/productAvailability'
+import { ALL_COLLECTION_CONFIGS } from '../data/collections'
 
 export { allJerseys, allShoes, allProducts } from '../../shared/data/products'
 
@@ -47,11 +48,24 @@ export interface PaginatedResult<T> {
 }
 
 /**
+ * True when the Admin assigned this product to the category being filtered
+ * (Admin › Products › Category). Catalog products without an assignment keep
+ * the rule-based matching below.
+ */
+function inAssignedCategory(item: Product, category: string): boolean {
+  if (!item.categorySlug) return false
+  const config = ALL_COLLECTION_CONFIGS.find((c) => c.slug === item.categorySlug)
+  if (!config) return false
+  const cat = category.toLowerCase().trim()
+  return config.slug === cat || config.category === cat || Boolean(config.aliases?.includes(cat))
+}
+
+/**
  * Filter jerseys by team, season, size, color, price and category
  */
 function filterJersey(item: JerseyProduct, filters: ProductFilterOptions = {}): boolean {
   // Category query (?category=club, national, retro, kids)
-  if (filters.category && filters.category !== 'all') {
+  if (filters.category && filters.category !== 'all' && !inAssignedCategory(item, filters.category)) {
     const cat = filters.category.toLowerCase().trim()
     const allItemCategories = (item.categories || [item.category]).map((c) => c.toLowerCase())
     if (cat === 'club' || cat === 'club-jerseys' || cat === 'club jerseys') {
@@ -193,7 +207,7 @@ function filterJersey(item: JerseyProduct, filters: ProductFilterOptions = {}): 
  */
 function filterShoe(item: ShoeProduct, filters: ProductFilterOptions = {}): boolean {
   // Category query (?category=casual, formal, sneakers, loafers)
-  if (filters.category && filters.category !== 'all') {
+  if (filters.category && filters.category !== 'all' && !inAssignedCategory(item, filters.category)) {
     const cat = filters.category.toLowerCase().trim()
     const allItemCategories = (item.categories || [item.category]).map((c) => c.toLowerCase())
     if (cat === 'casual' || cat === 'casual-shoes' || cat === 'casual shoes' || cat === 'urban' || cat === 'urban-casual') {
@@ -629,6 +643,7 @@ export function getLocalizedProduct<T extends Product>(product: T, lang: string)
     ...product,
     name: translation.name || product.name,
     category: translation.category || product.category,
+    description: translation.description || product.description,
   }
 }
 

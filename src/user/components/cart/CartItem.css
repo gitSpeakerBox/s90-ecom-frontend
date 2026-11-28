@@ -543,3 +543,14 @@
     width: 100%;
   }
 }
+
+/* Chosen product options (shorts, name & number, badges…) under the name. */
+.cart-item-options {
+  margin: 2px 0 0;
+  font-family: var(--font-body);
+  font-size: 11.5px;
+  line-height: 1.35;
+  color: #6b6b6b;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}

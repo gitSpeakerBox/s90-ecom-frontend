@@ -26,6 +26,8 @@ export interface CartItem {
   image?: string
   brandOrTeam?: string
   addedAt?: number
+  /** Chosen product options (e.g. shorts, name & number), shown under the name. Part of the line's identity. */
+  options?: string[]
 }
 
 export interface AddToCartPayload {
@@ -37,17 +39,24 @@ export interface AddToCartPayload {
   image?: string
   brandOrTeam?: string
   addedAt?: number
+  options?: string[]
+}
+
+/** Same cart line: same product, size and chosen options. */
+export function cartLineKey(item: { productSlug: string; size?: string | number; options?: string[] }): string {
+  return [item.productSlug, String(item.size ?? ''), (item.options ?? []).join('|')].join('::')
 }
 
 export interface CartContextType {
   items: CartItem[]
   cartCount: number
   addToCart: (payload: AddToCartPayload) => void
-  removeFromCart: (productSlug: string, size?: string | number) => void
+  removeFromCart: (productSlug: string, size?: string | number, options?: string[]) => void
   updateQuantity: (
     productSlug: string,
     size: string | number | undefined,
-    quantity: number
+    quantity: number,
+    options?: string[]
   ) => void
   clearCart: () => void
   isCartBumped: boolean
@@ -131,11 +140,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       // Blocked products can never be added, whatever UI triggered the call.
       if (!isLinePurchasable(payload.productSlug)) return
       setItems((prevItems) => {
-        const existingIndex = prevItems.findIndex(
-          (item) =>
-            item.productSlug === payload.productSlug &&
-            String(item.size ?? '') === String(payload.size ?? '')
-        )
+        const existingIndex = prevItems.findIndex((item) => cartLineKey(item) === cartLineKey(payload))
 
         if (existingIndex > -1) {
           const updated = [...prevItems]
@@ -157,6 +162,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
           image: payload.image,
           brandOrTeam: payload.brandOrTeam,
           addedAt: payload.addedAt ?? Date.now(),
+          ...(payload.options?.length ? { options: payload.options } : {}),
         }
         return [newItem, ...prevItems]
       })
@@ -168,23 +174,12 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   )
 
   const removeFromCart = useCallback(
-    (productSlug: string, size?: string | number) => {
-      const exists = items.some(
-        (item) =>
-          item.productSlug === productSlug &&
-          String(item.size ?? '') === String(size ?? '')
-      )
+    (productSlug: string, size?: string | number, options?: string[]) => {
+      const key = cartLineKey({ productSlug, size, options })
+      const exists = items.some((item) => cartLineKey(item) === key)
       if (!exists) return
 
-      setItems((prev) =>
-        prev.filter(
-          (item) =>
-            !(
-              item.productSlug === productSlug &&
-              String(item.size ?? '') === String(size ?? '')
-            )
-        )
-      )
+      setItems((prev) => prev.filter((item) => cartLineKey(item) !== key))
       showGlobalToast('toast.cartRemoved')
     },
     [items, showGlobalToast]
@@ -194,18 +189,17 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     (
       productSlug: string,
       size: string | number | undefined,
-      quantity: number
+      quantity: number,
+      options?: string[]
     ) => {
       if (quantity <= 0) {
-        removeFromCart(productSlug, size)
+        removeFromCart(productSlug, size, options)
         return
       }
+      const key = cartLineKey({ productSlug, size, options })
       setItems((prev) =>
         prev.map((item) => {
-          if (
-            item.productSlug === productSlug &&
-            String(item.size ?? '') === String(size ?? '')
-          ) {
+          if (cartLineKey(item) === key) {
             return { ...item, quantity }
           }
           return item

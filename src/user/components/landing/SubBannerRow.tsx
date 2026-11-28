@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useLocale } from '../../context/LocaleContext'
 import type { SubBannerItem } from '../../types/landing'
+import { collectionForPath } from '../../data/collections'
 import './SubBannerRow.css'
 
 export type { SubBannerItem }
@@ -769,6 +770,9 @@ export const SubBannerRow = (props: SubBannerRowProps | SubBannerItem[]) => {
   }
 
   const getLocalizedTitle = (card: CarouselCardItem) => {
+    // Sub banners show the name of the category they link to (its EN / AR translation).
+    const categoryKey = collectionForPath(card.to)?.titleKey
+    if (categoryKey) return t(categoryKey, { defaultValue: card.title })
     const key = card.title?.toLowerCase()
     return key ? t(`subBanners.${key}`, { defaultValue: card.title }) : card.title
   }

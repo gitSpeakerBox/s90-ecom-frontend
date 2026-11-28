@@ -77,14 +77,14 @@ function OrderDetailBody({ order }: { order: Order }) {
           <dt>Name</dt>
           <dd>{addr.fullName}</dd>
           <dt>Email</dt>
-          <dd className="adm-muted">Not recorded on this order</dd>
+          {order.customerEmail ? <dd>{order.customerEmail}</dd> : <dd className="adm-muted">Not recorded on this order</dd>}
           <dt>Phone</dt>
           <dd>{addr.phone ?? '—'}</dd>
           <dt>Address</dt>
           <dd>
             {addr.street}
             <br />
-            {addr.city}, {addr.country}
+            {[addr.city, addr.region, addr.country].filter(Boolean).join(', ')}
             {addr.postalCode ? ` · ${addr.postalCode}` : ''}
           </dd>
           <dt>Payment method</dt>

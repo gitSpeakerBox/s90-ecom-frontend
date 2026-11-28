@@ -5,7 +5,7 @@ import {
   landingShoesHeroSlides,
   shoesPageHeroSlides,
 } from '../data/landing'
-import { isCollectionPathActive } from '../data/collections'
+import { ALL_COLLECTION_CONFIGS, isCollectionPathActive } from '../data/collections'
 import type { LandingHeroSlideItem } from '../data/landing'
 import type {
   AnnouncementData,
@@ -16,6 +16,14 @@ import type {
   FooterLink,
   LandingPageData,
 } from '../types/landing'
+
+/**
+ * Translation key of a hero banner's headline: a banner linked to a category
+ * (Admin › Hero Banners) shows that category's name (its EN / AR translation);
+ * other banners keep their own headline.
+ */
+export const heroTitleKey = (slide: LandingHeroSlideItem): string =>
+  (slide.categorySlug && ALL_COLLECTION_CONFIGS.find((c) => c.slug === slide.categorySlug)?.titleKey) || slide.titleKey
 
 export const getAnnouncementData = (): AnnouncementData => {
   return landingData.announcement

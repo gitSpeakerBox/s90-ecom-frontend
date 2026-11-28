@@ -139,8 +139,7 @@ export function CollectionsPage() {
 
       <Card
         flush
-        footer="Inactive collections are hidden from customers (collection menu, collection cards, home-page category strips and their collection page). Products are not changed. The Active status is saved in this browser only until a backend is connected."
-      >
+        >
         <div className="adm-toolbar">
           <SearchInput value={query} onChange={setQuery} placeholder="Search collections…" label="Search collections" />
           <SelectFilter

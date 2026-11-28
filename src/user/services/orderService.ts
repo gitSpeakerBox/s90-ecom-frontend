@@ -42,3 +42,16 @@ export async function getOrderById(id: string): Promise<Order | null> {
   return Promise.resolve(found ? hydrateOrder(found) : null)
 }
 
+
+/**
+ * Saves a new order to the order store (currently the in-memory demo orders:
+ * there is no backend yet, so the order lasts until the page is reloaded).
+ * Async like the other functions, so a real API can replace it.
+ */
+export async function createOrder(order: Order): Promise<Order> {
+  if (DUMMY_ORDERS.some((o) => o.id.toLowerCase() === order.id.toLowerCase())) {
+    throw new Error(`Order ${order.id} already exists.`)
+  }
+  DUMMY_ORDERS.unshift(order)
+  return Promise.resolve(order)
+}

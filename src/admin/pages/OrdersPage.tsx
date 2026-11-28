@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { Bell, Eye, ShoppingBag } from 'lucide-react'
+import { Bell, Eye, Plus, ShoppingBag } from 'lucide-react'
 import type { Order } from '../../shared/types/order'
 import { PageHeader } from '../components/PageHeader'
 import { Card } from '../components/Card'
@@ -12,6 +12,7 @@ import { Pagination } from '../components/Pagination'
 import { EmptyState } from '../components/EmptyState'
 import { OrderStatusBadge, PaymentStatusBadge } from '../components/StatusBadge'
 import { OrderDetailDrawer } from './OrderDetailDrawer'
+import { ManualOrderModal } from './ManualOrderModal'
 import { useAdminData } from '../context/AdminDataContext'
 import { usePagination } from '../hooks/usePagination'
 import { useMarkNewOrdersReadOnOpen, useNewOrders } from '../hooks/useNewOrders'
@@ -48,6 +49,7 @@ export function OrdersPage() {
   const [status, setStatus] = useState<StatusFilter>('all')
   const [payment, setPayment] = useState('all')
   const [date, setDate] = useState('all')
+  const [manualOpen, setManualOpen] = useState(false)
   const [sort, setSort] = useState<{ key: string; dir: 'asc' | 'desc' }>({ key: 'date', dir: 'desc' })
 
   const all = listOrders()
@@ -74,8 +76,12 @@ export function OrdersPage() {
       render: (o) => (
         <div>
           <div className="adm-cell-primary">{o.shippingAddress.fullName}</div>
-          <div className="adm-cell-secondary is-nowrap" style={{ whiteSpace: 'nowrap' }} title="Orders in the demo data carry no email address">
-            No email · {o.shippingAddress.phone ?? '—'}
+          <div
+            className="adm-cell-secondary is-nowrap"
+            style={{ whiteSpace: 'nowrap' }}
+            title={o.customerEmail ? undefined : 'Orders in the demo data carry no email address'}
+          >
+            {o.customerEmail ?? 'No email'} · {o.shippingAddress.phone ?? '—'}
           </div>
         </div>
       ),
@@ -184,6 +190,7 @@ export function OrdersPage() {
         title="Orders"
         subtitle="Track and manage customer orders, payment and fulfilment status."
         actions={
+          <>
           <button
             type="button"
             className="adm-icon-btn adm-icon-btn--bordered adm-order-bell"
@@ -205,6 +212,10 @@ export function OrdersPage() {
               </span>
             )}
           </button>
+          <button type="button" className="adm-btn adm-btn--primary" onClick={() => setManualOpen(true)}>
+            <Plus size={16} aria-hidden="true" /> Manual Order
+          </button>
+          </>
         }
       />
 
@@ -268,6 +279,19 @@ export function OrdersPage() {
         <Pagination state={pagination} noun="orders" showPageSize={false} />
       </Card>
 
+      <ManualOrderModal
+        open={manualOpen}
+        onClose={() => setManualOpen(false)}
+        onCreated={() => {
+          // Show the new order: it is the newest, so it heads page 1 once filters are cleared.
+          setManualOpen(false)
+          setQuery('')
+          setStatus('all')
+          setPayment('all')
+          setDate('all')
+          pagination.setPage(1)
+        }}
+      />
       <OrderDetailDrawer order={selected} onClose={closeOrder} />
     </div>
   )

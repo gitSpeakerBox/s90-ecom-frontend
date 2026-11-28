@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom'
 import { Link, useNavigate } from 'react-router-dom'
 import { ShoppingBag, X } from 'lucide-react'
 import { useLocale } from '../../context/LocaleContext'
-import { useCart } from '../../context/CartContext'
+import { useCart, cartLineKey } from '../../context/CartContext'
 import { useCartDrawer } from '../../context/CartDrawerContext'
 import { CartItem } from './CartItem'
 import { CartTotalsBlock } from './CartTotalsBlock'
@@ -234,7 +234,7 @@ export const CartDrawer: React.FC = () => {
             >
               {items.map((item) => (
                 <CartItem
-                  key={`${item.productSlug}-${item.size ?? 'default'}`}
+                  key={cartLineKey(item)}
                   item={item}
                   variant="compact"
                   onNavigate={handleClose}

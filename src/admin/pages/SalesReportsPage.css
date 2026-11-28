@@ -1,0 +1,214 @@
+/* Admin › Sales Reports. All selectors are .adm-* scoped. */
+
+.adm-sales-toolbar .adm-search {
+  flex: 1 1 260px;
+  min-width: 220px;
+}
+
+.adm-sales-toolbar--meta {
+  background: var(--adm-surface-2, #fafafa);
+}
+
+/* One compact currency dropdown. */
+.adm-sales-currency.adm-filter-select {
+  width: auto;
+  min-width: 0;
+}
+
+.adm-sales-payment {
+  color: var(--adm-text-2);
+}
+
+/* ── Report table: always fits its container (no horizontal scrolling) ── */
+
+.adm-sales-table {
+  container: sales-table / inline-size;
+}
+
+.adm-sales-table .adm-table-wrap {
+  overflow-x: visible;
+}
+
+.adm-sales-table .adm-table {
+  table-layout: fixed;
+  font-size: 12.5px;
+}
+
+.adm-sales-table .adm-table th {
+  font-size: 10.5px;
+  letter-spacing: 0.03em;
+  padding: 9px 8px;
+  white-space: normal;
+  vertical-align: bottom;
+}
+
+.adm-sales-table .adm-table th button {
+  text-align: left;
+}
+
+.adm-sales-table .adm-table td {
+  padding: 10px 8px;
+  vertical-align: middle;
+  overflow-wrap: anywhere;
+}
+
+.adm-sales-table .adm-table th:first-child,
+.adm-sales-table .adm-table td:first-child {
+  padding-left: 16px;
+}
+
+.adm-sales-table .adm-table th:last-child,
+.adm-sales-table .adm-table td:last-child {
+  padding-right: 12px;
+}
+
+/* Column widths (sum 100%) */
+.adm-sales-table .adm-table th:nth-child(1) { width: 15%; }
+.adm-sales-table .adm-table th:nth-child(2) { width: 11.5%; }
+.adm-sales-table .adm-table th:nth-child(3) { width: 10.5%; }
+.adm-sales-table .adm-table th:nth-child(4) { width: 18%; }
+.adm-sales-table .adm-table th:nth-child(5) { width: 10.5%; }
+.adm-sales-table .adm-table th:nth-child(6) { width: 14%; }
+.adm-sales-table .adm-table th:nth-child(7) { width: 14%; }
+.adm-sales-table .adm-table th:nth-child(8) { width: 6.5%; }
+
+/* Amounts and IDs stay on one line; names and payment text wrap. */
+.adm-sales-table .adm-num {
+  white-space: nowrap;
+}
+
+.adm-sales-table .adm-badge {
+  height: auto;
+  min-height: 22px;
+  padding: 3px 8px;
+  font-size: 11px;
+  gap: 4px;
+  white-space: normal;
+  line-height: 1.2;
+}
+
+.adm-sales-table .adm-icon-btn {
+  width: 30px;
+  height: 30px;
+}
+
+/* Narrow containers (tablet / mobile / small laptops with the sidebar):
+   each order becomes a labelled card — every column stays visible. */
+@container sales-table (max-width: 819px) {
+  .adm-sales-table .adm-table,
+  .adm-sales-table .adm-table tbody,
+  .adm-sales-table .adm-table td {
+    display: block;
+    width: auto;
+  }
+
+  .adm-sales-table .adm-table thead {
+    display: none;
+  }
+
+  .adm-sales-table .adm-table tbody tr:has(> td:nth-child(8)) {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px 16px;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--adm-border);
+  }
+
+  .adm-sales-table .adm-table tbody tr:has(> td:nth-child(8)) td {
+    padding: 0;
+    border: 0;
+    text-align: left;
+  }
+
+  .adm-sales-table .adm-table tbody tr:has(> td:nth-child(8)) td::before {
+    display: block;
+    margin-bottom: 2px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--adm-text-3);
+  }
+
+  .adm-sales-table .adm-table tbody tr td:nth-child(1) {
+    grid-column: 1 / -1;
+    padding-right: 40px;
+    font-size: 14px;
+  }
+
+  .adm-sales-table .adm-table tbody tr td:nth-child(1)::before { content: 'Customer Name'; }
+  .adm-sales-table .adm-table tbody tr td:nth-child(2)::before { content: 'Order ID'; }
+  .adm-sales-table .adm-table tbody tr td:nth-child(3)::before { content: 'Date'; }
+  .adm-sales-table .adm-table tbody tr td:nth-child(4)::before { content: 'Payment Method'; }
+  .adm-sales-table .adm-table tbody tr td:nth-child(5)::before { content: 'Discount'; }
+  .adm-sales-table .adm-table tbody tr td:nth-child(6)::before { content: 'Order Status'; }
+  .adm-sales-table .adm-table tbody tr td:nth-child(7)::before { content: 'Total Amount'; }
+
+  .adm-sales-table .adm-table tbody tr td:nth-child(4) {
+    grid-column: 1 / -1;
+  }
+
+  .adm-sales-table .adm-table tbody tr td:nth-child(8) {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+  }
+
+  .adm-sales-table .adm-table tbody tr:has(> td:nth-child(8)):last-child {
+    border-bottom: 0;
+  }
+}
+
+/* Medium cards (small laptops / tablets): four fields per line. */
+@container sales-table (min-width: 560px) and (max-width: 819px) {
+  .adm-sales-table .adm-table tbody tr:has(> td:nth-child(8)) {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .adm-sales-table .adm-table tbody tr td:nth-child(4) {
+    grid-column: span 2;
+  }
+}
+
+/* Order details modal */
+.adm-sales-detail__badges {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.adm-sales-detail__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+@media (max-width: 1024px) {
+  .adm-sales-toolbar .adm-search {
+    flex-basis: 100%;
+  }
+}
+
+@media (max-width: 760px) {
+  .adm-sales-toolbar .adm-filter-select,
+  .adm-sales-toolbar .adm-date-inputs {
+    flex: 1 1 calc(50% - 10px);
+    min-width: 0;
+  }
+
+  .adm-sales-toolbar--meta .adm-toolbar__spacer {
+    display: none;
+  }
+
+  .adm-sales-toolbar--meta .adm-btn--primary {
+    flex: 1 1 calc(50% - 10px);
+    justify-content: center;
+  }
+
+  .adm-sales-detail__grid {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+}

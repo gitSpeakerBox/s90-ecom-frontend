@@ -23,6 +23,8 @@ export interface BannerTile {
   title?: string;
   isDarkTile?: boolean;
   link?: string;
+  /** Category (collection slug) the tile links to; stored separately from its type. */
+  categorySlug?: string;
 }
 
 export interface BannerStripData {

@@ -1,0 +1,240 @@
+/* Admin › Products › Add / Edit product. All selectors are .adm-pf scoped. */
+
+.adm-pf {
+  display: grid;
+}
+
+.adm-pf-section {
+  margin: 0;
+  padding: 0 0 20px;
+  border: 0;
+  min-width: 0;
+}
+
+.adm-pf-section + .adm-pf-section {
+  padding-top: 20px;
+  border-top: 1px solid var(--adm-border);
+}
+
+.adm-pf-section > legend {
+  float: left;
+  width: 100%;
+  margin-bottom: 12px;
+  padding: 0;
+}
+
+.adm-pf-section > legend + * {
+  clear: both;
+}
+
+.adm-pf .adm-field-error {
+  display: block;
+  font-size: 12px;
+  color: var(--adm-danger-ink);
+}
+
+.adm-pf-section > .adm-field-error {
+  margin-top: 8px;
+}
+
+.adm-pf .adm-required {
+  color: var(--adm-danger-ink);
+  margin-left: 2px;
+}
+
+.adm-pf .adm-input[aria-invalid='true'],
+.adm-pf .adm-select[aria-invalid='true'],
+.adm-pf .adm-textarea[aria-invalid='true'] {
+  border-color: var(--adm-danger-ink);
+}
+
+.adm-pf-intro {
+  margin: 0 0 12px;
+}
+
+.adm-pf-note {
+  margin: 12px 0 0;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--adm-surface-2);
+}
+
+/* Sizes */
+.adm-pf-sizes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+  gap: 8px;
+}
+
+.adm-pf-size {
+  display: grid;
+  gap: 6px;
+  padding: 8px;
+  border: 1px solid var(--adm-border);
+  border-radius: 8px;
+  background: var(--adm-surface);
+}
+
+.adm-pf-size.is-offered {
+  border-color: var(--adm-border-strong);
+}
+
+.adm-pf-size__check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.adm-pf-size__check input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--adm-ink);
+}
+
+.adm-pf-size__state {
+  padding: 3px 8px;
+  border: 1px solid #b9dfc6;
+  border-radius: 999px;
+  background: #eaf7ef;
+  color: #1d6b3a;
+  font: inherit;
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.adm-pf-size.is-unavailable .adm-pf-size__check span {
+  text-decoration: line-through;
+  color: var(--adm-text-3);
+}
+
+.adm-pf-size.is-unavailable .adm-pf-size__state {
+  border-color: #f0c4c4;
+  background: #fdecec;
+  color: var(--adm-danger-ink);
+}
+
+.adm-pf-size__state:focus-visible {
+  outline: 2px solid var(--adm-focus);
+  outline-offset: 2px;
+}
+
+/* Images */
+.adm-pf-images {
+  list-style: none;
+  margin: 0 0 12px;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(124px, 1fr));
+  gap: 10px;
+}
+
+.adm-pf-image {
+  position: relative;
+  display: grid;
+  gap: 6px;
+  padding: 6px;
+  border: 1px solid var(--adm-border);
+  border-radius: 8px;
+  background: var(--adm-surface);
+}
+
+.adm-pf-image img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 6px;
+  background: #f4f4f4;
+}
+
+.adm-pf-image__tag {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: rgba(17, 17, 17, 0.78);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.adm-pf-image__actions {
+  display: flex;
+  justify-content: space-between;
+}
+
+.adm-pf-image__actions .adm-icon-btn {
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+}
+
+.adm-pf-image__actions label.adm-icon-btn:has(input:focus-visible) {
+  outline: 2px solid var(--adm-focus);
+  outline-offset: 2px;
+}
+
+.adm-pf-image__remove:hover {
+  color: var(--adm-danger-ink);
+}
+
+.adm-pf-upload {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+}
+
+.adm-pf-upload label.adm-btn {
+  cursor: pointer;
+}
+
+.adm-pf-upload label.adm-btn:has(input:focus-visible) {
+  outline: 2px solid var(--adm-focus);
+  outline-offset: 2px;
+}
+
+.adm-pf-upload label.adm-btn.is-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Badges */
+.adm-pf-sponsor {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.adm-pf-sponsor__logo {
+  width: 28px;
+  height: 28px;
+  flex: none;
+  object-fit: contain;
+  border: 1px solid var(--adm-border);
+  border-radius: 6px;
+  background: #fff;
+}
+
+/* Jersey options */
+.adm-pf-option {
+  display: grid;
+  gap: 6px;
+  justify-items: start;
+}
+
+.adm-pf-option + .adm-pf-option {
+  margin-top: 16px;
+}
+
+.adm-pf-shorts {
+  width: min(240px, 100%);
+  margin-top: 4px;
+}

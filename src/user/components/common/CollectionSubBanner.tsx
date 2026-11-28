@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 import { ChevronLeft, ChevronRight, ArrowUpRight } from 'lucide-react'
 import { useLocale } from '../../context/LocaleContext'
 import type { CollectionBannerCard } from '../../data/collectionBanners'
+import { collectionForPath } from '../../data/collections'
 import './CollectionSubBanner.css'
 
 export interface CollectionSubBannerProps {
@@ -753,7 +754,8 @@ export const CollectionSubBanner: React.FC<CollectionSubBannerProps> = ({
     isClone: boolean,
     key: string
   ) => {
-    const translatedTitle = t(card.titleKey, { defaultValue: card.title })
+    // The card shows the name of the category it links to (its EN / AR translation).
+    const translatedTitle = t(collectionForPath(card.to)?.titleKey ?? card.titleKey, { defaultValue: card.title })
     const isActive = Boolean(
       !isClone &&
         activeCategory &&

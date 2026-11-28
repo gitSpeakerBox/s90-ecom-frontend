@@ -98,3 +98,15 @@ export function registerProduct(product: Product): void {
     productMapById.set(product._id, product);
   }
 }
+
+/**
+ * Moves a product between the jersey and shoe arrays after its type changes
+ * in the Admin. The object itself (ID, slug, lookups) stays the same.
+ */
+export function moveProductToType(product: Product, type: ProductType): void {
+  const from: Product[] = type === 'jersey' ? allShoes : allJerseys;
+  const to: Product[] = type === 'jersey' ? allJerseys : allShoes;
+  const i = from.indexOf(product);
+  if (i >= 0) from.splice(i, 1);
+  if (!to.includes(product)) to.push(product);
+}

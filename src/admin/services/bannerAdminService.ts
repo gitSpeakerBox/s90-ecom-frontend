@@ -6,14 +6,15 @@ import {
   shoesPageHeroSlides,
 } from '../../user/data/landing'
 import type { LandingHeroSlideItem } from '../../user/data/landing'
-import { jerseyCollectionCards, shoesCollectionCards } from '../../user/data/collectionBanners'
+import { NEUTRAL_CARD_BG, jerseyCollectionCards, shoesCollectionCards } from '../../user/data/collectionBanners'
 import type { CollectionBannerCard } from '../../user/data/collectionBanners'
 import type { BannerTile } from '../../user/types/landing'
-import { ALL_COLLECTION_CONFIGS } from '../../user/data/collections'
+import { ALL_COLLECTION_CONFIGS, collectionForPath } from '../../user/data/collections'
 import { ManagedList } from './managedList'
 import { collectionName, typeLabel } from './collectionAdminService'
 import { isCollectionActive } from '../../shared/services/collectionAvailability'
 import { getText, setText, singleLine } from './localeTextService'
+import { heroTitleKey } from '../../user/services/landingService'
 
 /* ───────────────────────────── Hero banners ───────────────────────────── */
 
@@ -22,9 +23,18 @@ export type HeroBannerType = 'Home' | 'Jerseys' | 'Shoes'
 
 export const HERO_BANNER_TYPES: HeroBannerType[] = ['Home', 'Jerseys', 'Shoes']
 
+/** Section of the Home page a Home banner (hero or sub) appears in. */
+export type HomePlacement = 'Jerseys' | 'Shoes'
+
+export const HOME_PLACEMENTS: HomePlacement[] = ['Jerseys', 'Shoes']
+
+const HOME_PLACEMENT_ERROR = 'Choose the Home page section: Jerseys or Shoes.'
+
 export interface HeroGroup {
   id: 'home-top' | 'home-second' | 'jerseys-page' | 'shoes-page'
   type: HeroBannerType
+  /** Home page section (Home groups only); kept apart from the type. */
+  homePlacement: HomePlacement | null
   placement: string
   list: ManagedList<LandingHeroSlideItem>
 }
@@ -37,21 +47,19 @@ export interface HeroGroup {
  * the storefront reads (see ManagedList). Memory only, like other edits.
  */
 export const HERO_GROUPS: HeroGroup[] = [
-  { id: 'home-top', type: 'Home', placement: 'Home page · top slider', list: new ManagedList(landingHeroSlides) },
-  { id: 'home-second', type: 'Home', placement: 'Home page · second slider', list: new ManagedList(landingShoesHeroSlides) },
-  { id: 'jerseys-page', type: 'Jerseys', placement: 'Jerseys page hero', list: new ManagedList(jerseysPageHeroSlides) },
-  { id: 'shoes-page', type: 'Shoes', placement: 'Shoes page hero', list: new ManagedList(shoesPageHeroSlides) },
+  { id: 'home-top', type: 'Home', homePlacement: 'Jerseys', placement: 'Home page · top slider', list: new ManagedList(landingHeroSlides) },
+  { id: 'home-second', type: 'Home', homePlacement: 'Shoes', placement: 'Home page · second slider', list: new ManagedList(landingShoesHeroSlides) },
+  { id: 'jerseys-page', type: 'Jerseys', homePlacement: null, placement: 'Jerseys page hero', list: new ManagedList(jerseysPageHeroSlides) },
+  { id: 'shoes-page', type: 'Shoes', homePlacement: null, placement: 'Shoes page hero', list: new ManagedList(shoesPageHeroSlides) },
 ]
 
-/** Where new banners of each type are added. */
-const TARGET_GROUP: Record<HeroBannerType, HeroGroup['id']> = {
-  Home: 'home-top',
-  Jerseys: 'jerseys-page',
-  Shoes: 'shoes-page',
-}
-
-function groupById(id: HeroGroup['id']): HeroGroup {
-  return HERO_GROUPS.find((g) => g.id === id)!
+/**
+ * Section a banner of this type / Home placement goes in:
+ * Home + Jerseys → Home page jerseys slider, Home + Shoes → Home page shoes
+ * slider, Jerseys → /jerseys hero, Shoes → /shoes hero.
+ */
+function heroTargetGroup(type: HeroBannerType, homePlacement: HomePlacement | ''): HeroGroup {
+  return HERO_GROUPS.find((g) => g.type === type && (type !== 'Home' || g.homePlacement === homePlacement))!
 }
 
 export interface HeroBannerView {
@@ -61,7 +69,7 @@ export interface HeroBannerView {
   type: HeroBannerType
   active: boolean
   image: string
-  /** Headline (English), single line. */
+  /** Headline (English), single line: the selected category's name, else the banner's own headline. */
   name: string
 }
 
@@ -76,7 +84,7 @@ export function listHeroBanners(): HeroBannerView[] {
         type: group.type,
         active: e.visible,
         image: e.item.image,
-        name: singleLine(getText(e.item.titleKey, 'en')) || e.item.id,
+        name: singleLine(getText(heroTitleKey(e.item), 'en')) || e.item.id,
       })
     }
   }
@@ -93,16 +101,14 @@ export function deleteHeroBanner(row: HeroBannerView): void {
 
 /** Fields of the Add / Edit Hero Banner form. */
 export interface HeroBannerInput {
-  /** Headline in English (shown large in the banner). */
-  name: string
-  /** Headline in Arabic. */
-  nameAr: string
   type: HeroBannerType | ''
+  /** Home page section; required (and only kept) when type is Home. */
+  homePlacement: HomePlacement | ''
   /** Supporting text shown under the headline (English). */
   text: string
   /** Supporting text shown under the headline (Arabic). */
   textAr: string
-  /** Category ID (collection slug) the banner links to; '' until chosen. */
+  /** Category ID (collection slug) the banner links to; its name is the banner's headline. '' until chosen. */
   category: string
   /** Image path or uploaded data URL. */
   image: string
@@ -133,16 +139,14 @@ export function categoryPath(slug: string): string {
 /** Button label for banners that link to a category (fits any category). */
 const CATEGORY_BUTTON_KEY = 'hero.shopNow'
 
-export const HERO_NAME_MAX = 60
 export const HERO_TEXT_MAX = 160
 const ARABIC_LETTERS = /\p{Script=Arabic}/u
 
 /** Form values for an existing banner. Line breaks in stored copy show as spaces. */
 export function heroBannerValues(row: HeroBannerView): HeroBannerInput {
   return {
-    name: singleLine(getText(row.slide.titleKey, 'en')),
-    nameAr: singleLine(getText(row.slide.titleKey, 'ar')),
     type: row.type,
+    homePlacement: row.group.homePlacement ?? '',
     text: singleLine(getText(row.slide.textKey, 'en')),
     textAr: singleLine(getText(row.slide.textKey, 'ar')),
     // Previously selected category, if it still exists.
@@ -153,14 +157,8 @@ export function heroBannerValues(row: HeroBannerView): HeroBannerInput {
 
 export function validateHeroBanner(input: HeroBannerInput): Partial<Record<keyof HeroBannerInput, string>> {
   const errors: Partial<Record<keyof HeroBannerInput, string>> = {}
-  const name = input.name.trim()
-  const nameAr = input.nameAr.trim()
-  if (!name) errors.name = 'Enter the banner name in English.'
-  else if (name.length > HERO_NAME_MAX) errors.name = `Use ${HERO_NAME_MAX} characters or fewer.`
-  if (!nameAr) errors.nameAr = 'Enter the banner name in Arabic.'
-  else if (nameAr.length > HERO_NAME_MAX) errors.nameAr = `Use ${HERO_NAME_MAX} characters or fewer.`
-  else if (!ARABIC_LETTERS.test(nameAr)) errors.nameAr = 'Use Arabic characters for the Arabic name.'
   if (!input.type || !HERO_BANNER_TYPES.includes(input.type)) errors.type = 'Choose Home, Jerseys or Shoes.'
+  else if (input.type === 'Home' && !HOME_PLACEMENTS.includes(input.homePlacement as HomePlacement)) errors.homePlacement = HOME_PLACEMENT_ERROR
   // Banner text is optional in both languages; checked only when entered.
   const text = input.text.trim()
   const textAr = input.textAr.trim()
@@ -174,18 +172,12 @@ export function validateHeroBanner(input: HeroBannerInput): Partial<Record<keyof
 }
 
 /**
- * Gives a slide its own headline / text keys (copying both languages) before
- * its copy is edited, so banners that shared keys (e.g. the Home and Jerseys
- * page heroes) are never changed together.
+ * Gives a slide its own banner-text key (copying both languages) before its
+ * text is edited, so banners that shared keys (e.g. the Home and Jerseys page
+ * heroes) are never changed together. The headline is the category's name.
  */
-function ownTextKeys(slide: LandingHeroSlideItem): void {
-  const titleKey = `hero.custom.${slide.id}.title`
+function ownTextKey(slide: LandingHeroSlideItem): void {
   const textKey = `hero.custom.${slide.id}.text`
-  if (slide.titleKey !== titleKey) {
-    setText(titleKey, 'en', getText(slide.titleKey, 'en'))
-    setText(titleKey, 'ar', getText(slide.titleKey, 'ar'))
-    slide.titleKey = titleKey
-  }
   if (slide.textKey !== textKey) {
     setText(textKey, 'en', getText(slide.textKey, 'en'))
     setText(textKey, 'ar', getText(slide.textKey, 'ar'))
@@ -204,7 +196,8 @@ export function createHeroBanner(input: HeroBannerInput): LandingHeroSlideItem {
     id,
     image: input.image,
     eyebrowKey: `hero.custom.${id}.eyebrow`,
-    titleKey: `hero.custom.${id}.title`,
+    // Headline = the selected category's name (storefront: heroTitleKey); no text of its own.
+    titleKey: ALL_COLLECTION_CONFIGS.find((c) => c.slug === input.category)?.titleKey ?? '',
     textKey: `hero.custom.${id}.text`,
     buttonLabelKey: CATEGORY_BUTTON_KEY,
     // The banner opens its selected category's listing page.
@@ -212,25 +205,21 @@ export function createHeroBanner(input: HeroBannerInput): LandingHeroSlideItem {
     categorySlug: input.category,
   }
   setText(slide.eyebrowKey, 'en', '')
-  setText(slide.titleKey, 'en', input.name.trim())
-  setText(slide.titleKey, 'ar', input.nameAr.trim())
   // Both languages are always written: an empty text renders as nothing, never as a key.
   setText(slide.textKey, 'en', input.text.trim())
   setText(slide.textKey, 'ar', input.textAr.trim())
-  groupById(TARGET_GROUP[type]).list.add(slide)
+  heroTargetGroup(type, input.homePlacement).list.add(slide)
   return slide
 }
 
-/** Updates a banner; changing its type moves it to that section (keeping its Active state). */
+/** Updates a banner; a new type or Home placement moves it to that section (keeping its Active state). */
 export function updateHeroBanner(row: HeroBannerView, input: HeroBannerInput): void {
   const current = heroBannerValues(row)
   const slide = row.slide
-  const changed = (['name', 'nameAr', 'text', 'textAr'] as const).filter((k) => input[k].trim() !== current[k])
+  const changed = (['text', 'textAr'] as const).filter((k) => input[k].trim() !== current[k])
   if (changed.length > 0) {
-    ownTextKeys(slide)
+    ownTextKey(slide)
     // Only changed fields are written, so untouched copy keeps its original line breaks.
-    if (changed.includes('name')) setText(slide.titleKey, 'en', input.name.trim())
-    if (changed.includes('nameAr')) setText(slide.titleKey, 'ar', input.nameAr.trim())
     if (changed.includes('text')) setText(slide.textKey, 'en', input.text.trim())
     if (changed.includes('textAr')) setText(slide.textKey, 'ar', input.textAr.trim())
   }
@@ -243,11 +232,11 @@ export function updateHeroBanner(row: HeroBannerView, input: HeroBannerInput): v
     slide.action = undefined
     slide.buttonLabelKey = CATEGORY_BUTTON_KEY
   }
-  const type = input.type as HeroBannerType
-  if (type !== row.type) {
+  const targetGroup = heroTargetGroup(input.type as HeroBannerType, input.homePlacement)
+  if (targetGroup !== row.group) {
     const wasActive = row.active
     row.group.list.remove(slide)
-    const target = groupById(TARGET_GROUP[type]).list
+    const target = targetGroup.list
     target.add(slide)
     if (!wasActive) target.setVisible(slide, false)
   }
@@ -255,171 +244,205 @@ export function updateHeroBanner(row: HeroBannerView, input: HeroBannerInput): v
 
 /* ───────────────────────────── Sub banners ────────────────────────────── */
 
-/**
- * Two existing sub-banner sources:
- * - Landing category strips (landingData.jerseysBanners / shoesBanners tiles),
- *   rendered on "/" by SubBannerRow via landingService.
- * - Collection cards (collectionBanners.ts), rendered on /jerseys and /shoes
- *   by CollectionSubBanner.
- */
-export type SubBannerRecord =
-  | { kind: 'tile'; item: BannerTile }
-  | { kind: 'card'; item: CollectionBannerCard }
+/** Storefront section a sub banner appears in. */
+export type SubBannerType = 'home' | 'jerseys' | 'shoes'
 
+/** Type options of the Add / Edit form. */
+export const SUB_BANNER_TYPE_OPTIONS: { value: SubBannerType; label: string }[] = [
+  { value: 'home', label: 'Home' },
+  { value: 'jerseys', label: 'Jerseys' },
+  { value: 'shoes', label: 'Shoes' },
+]
+
+/** Type as shown in the listing table. */
+export const SUB_BANNER_TYPE_LABEL: Record<SubBannerType, string> = {
+  home: 'Home',
+  jerseys: 'Jersey Home',
+  shoes: 'Shoes Home',
+}
+
+type SubBannerItem = BannerTile | CollectionBannerCard
+
+/**
+ * The existing sub-banner data — no copies:
+ * - Home: the two category strips on "/" (landingData.jerseysBanners /
+ *   shoesBanners tiles, rendered by SubBannerRow).
+ * - Jerseys / Shoes: the collection cards on /jerseys and /shoes
+ *   (collectionBanners.ts, rendered by CollectionSubBanner).
+ * "Active" = shown; a blocked banner stays here but is removed from the array
+ * the storefront reads (see ManagedList). Memory only, like other edits.
+ */
 export interface SubBannerGroup {
-  id: string
-  label: string
-  placement: string
-  storefrontPath: string
+  id: 'home-jerseys-strip' | 'home-shoes-strip' | 'jerseys-cards' | 'shoes-cards'
+  type: SubBannerType
+  /** Home page section (Home groups only); kept apart from the type. */
+  homePlacement: HomePlacement | null
   kind: 'tile' | 'card'
-  list: ManagedList<BannerTile> | ManagedList<CollectionBannerCard>
+  list: ManagedList<SubBannerItem>
 }
 
 export const SUB_BANNER_GROUPS: SubBannerGroup[] = [
-  {
-    id: 'landing-jerseys-strip',
-    label: 'Jersey category strip',
-    placement: 'Home page · jersey collections row',
-    storefrontPath: '/',
-    kind: 'tile',
-    list: new ManagedList(landingData.jerseysBanners.tiles),
-  },
-  {
-    id: 'landing-shoes-strip',
-    label: 'Shoe category strip',
-    placement: 'Home page · shoe collections row',
-    storefrontPath: '/',
-    kind: 'tile',
-    list: new ManagedList(landingData.shoesBanners.tiles),
-  },
-  {
-    id: 'jerseys-collection-cards',
-    label: 'Jersey collection cards',
-    placement: 'Jerseys page · Shop by collections',
-    storefrontPath: '/jerseys',
-    kind: 'card',
-    list: new ManagedList(jerseyCollectionCards),
-  },
-  {
-    id: 'shoes-collection-cards',
-    label: 'Shoe collection cards',
-    placement: 'Shoes page · Shop by collections',
-    storefrontPath: '/shoes',
-    kind: 'card',
-    list: new ManagedList(shoesCollectionCards),
-  },
+  { id: 'home-jerseys-strip', type: 'home', homePlacement: 'Jerseys', kind: 'tile', list: new ManagedList<SubBannerItem>(landingData.jerseysBanners.tiles) },
+  { id: 'home-shoes-strip', type: 'home', homePlacement: 'Shoes', kind: 'tile', list: new ManagedList<SubBannerItem>(landingData.shoesBanners.tiles) },
+  { id: 'jerseys-cards', type: 'jerseys', homePlacement: null, kind: 'card', list: new ManagedList<SubBannerItem>(jerseyCollectionCards) },
+  { id: 'shoes-cards', type: 'shoes', homePlacement: null, kind: 'card', list: new ManagedList<SubBannerItem>(shoesCollectionCards) },
 ]
+
+/**
+ * Section a banner of this type / Home placement goes in:
+ * Home + Jerseys → Home page jerseys row, Home + Shoes → Home page shoes row,
+ * Jerseys → /jerseys collection cards, Shoes → /shoes collection cards.
+ */
+function subTargetGroup(type: SubBannerType, homePlacement: HomePlacement | ''): SubBannerGroup {
+  return SUB_BANNER_GROUPS.find((g) => g.type === type && (type !== 'home' || g.homePlacement === homePlacement))!
+}
+
+export type SubBannerRecord = { kind: 'tile'; item: BannerTile } | { kind: 'card'; item: CollectionBannerCard }
 
 export interface SubBannerView {
   key: string
   group: SubBannerGroup
   record: SubBannerRecord
-  title: string
-  titleAr: string
+  type: SubBannerType
+  /** Selected category's name (English) — the name customers see on the banner. */
+  name: string
   image: string
-  alt: string
-  link: string
-  visible: boolean
+  active: boolean
+}
+
+function asRecord(group: SubBannerGroup, item: SubBannerItem): SubBannerRecord {
+  return group.kind === 'tile'
+    ? { kind: 'tile', item: item as BannerTile }
+    : { kind: 'card', item: item as CollectionBannerCard }
+}
+
+/** Fields of the Add / Edit Sub Banner form. */
+export interface SubBannerInput {
+  type: SubBannerType | ''
+  /** Home page section; required (and only kept) when type is Home. */
+  homePlacement: HomePlacement | ''
+  /** Category ID (collection slug); '' until chosen. */
+  category: string
+  /** Image path or uploaded data URL. */
+  image: string
+}
+
+/**
+ * Category the banner links to: its saved category, else the category its
+ * existing link points at (all original records link to a category page).
+ */
+function subBannerCategory(record: SubBannerRecord): string {
+  const saved = record.item.categorySlug
+  if (saved && ALL_COLLECTION_CONFIGS.some((c) => c.slug === saved)) return saved
+  const link = record.kind === 'tile' ? record.item.link : record.item.to
+  return collectionForPath(link)?.slug ?? ''
 }
 
 export function listSubBanners(): SubBannerView[] {
   const rows: SubBannerView[] = []
   for (const group of SUB_BANNER_GROUPS) {
-    if (group.kind === 'tile') {
-      for (const e of (group.list as ManagedList<BannerTile>).list()) {
-        const tile = e.item
-        const title = tile.title ?? ''
-        rows.push({
-          key: `${group.id}:${tile.id}`,
-          group,
-          record: { kind: 'tile', item: tile },
-          title,
-          // SubBannerRow translates tile titles via `subBanners.<title>`.
-          titleAr: getText(`subBanners.${title.toLowerCase()}`, 'ar'),
-          image: tile.image ?? '',
-          alt: tile.alt ?? '',
-          link: tile.link ?? '',
-          visible: e.visible,
-        })
-      }
-    } else {
-      for (const e of (group.list as ManagedList<CollectionBannerCard>).list()) {
-        const card = e.item
-        rows.push({
-          key: `${group.id}:${card.id}`,
-          group,
-          record: { kind: 'card', item: card },
-          title: getText(card.titleKey, 'en') || card.title,
-          titleAr: getText(card.titleKey, 'ar'),
-          image: card.image,
-          alt: card.imageAlt,
-          link: card.to,
-          visible: e.visible,
-        })
-      }
+    for (const e of group.list.list()) {
+      const record = asRecord(group, e.item)
+      const config = ALL_COLLECTION_CONFIGS.find((c) => c.slug === subBannerCategory(record))
+      rows.push({
+        key: `${group.id}:${e.item.id}`,
+        group,
+        record,
+        type: group.type,
+        name: config ? collectionName(config, 'en') : e.item.id,
+        image: record.kind === 'tile' ? (record.item.image ?? '') : record.item.image,
+        active: e.visible,
+      })
     }
   }
   return rows
 }
 
-export interface SubBannerEdit {
-  title: string
-  titleAr: string
-  image: string
-  alt: string
-  link: string
+export function setSubBannerActive(row: SubBannerView, active: boolean): void {
+  row.group.list.setVisible(row.record.item, active)
 }
 
-export function applySubBannerEdit(row: SubBannerView, edit: SubBannerEdit): void {
-  const { record } = row
-  if (record.kind === 'tile') {
-    record.item.title = edit.title.trim()
-    record.item.image = edit.image.trim()
-    record.item.alt = edit.alt.trim()
-    record.item.link = edit.link.trim() || record.item.link
-  } else {
-    const card = record.item
-    card.title = edit.title.trim() || card.title
-    if (edit.title !== getText(card.titleKey, 'en')) setText(card.titleKey, 'en', edit.title.trim())
-    if (edit.titleAr !== getText(card.titleKey, 'ar')) setText(card.titleKey, 'ar', edit.titleAr.trim())
-    card.image = edit.image.trim()
-    card.imageAlt = edit.alt.trim()
-    card.to = edit.link.trim() || card.to
+export function deleteSubBanner(row: SubBannerView): void {
+  row.group.list.remove(row.record.item)
+}
+
+/** Form values for an existing banner. */
+export function subBannerValues(row: SubBannerView): SubBannerInput {
+  return { type: row.type, homePlacement: row.group.homePlacement ?? '', category: subBannerCategory(row.record), image: row.image }
+}
+
+export function validateSubBanner(input: SubBannerInput): Partial<Record<keyof SubBannerInput, string>> {
+  const errors: Partial<Record<keyof SubBannerInput, string>> = {}
+  if (!SUB_BANNER_TYPE_OPTIONS.some((o) => o.value === input.type)) errors.type = 'Choose Home, Jerseys or Shoes.'
+  else if (input.type === 'home' && !HOME_PLACEMENTS.includes(input.homePlacement as HomePlacement)) errors.homePlacement = HOME_PLACEMENT_ERROR
+  if (!input.category) errors.category = 'Choose the category this banner links to.'
+  else if (!ALL_COLLECTION_CONFIGS.some((c) => c.slug === input.category)) errors.category = 'Choose a category from the list.'
+  if (!input.image) errors.image = 'Add a banner image.'
+  return errors
+}
+
+/**
+ * Builds the storefront record for a section kind (tile on Home, card on
+ * Jerseys / Shoes). No name or sub title of its own: the storefront shows the
+ * selected category's name (its existing translations).
+ */
+function buildSubBanner(kind: SubBannerGroup['kind'], id: string, input: SubBannerInput): SubBannerItem {
+  const config = ALL_COLLECTION_CONFIGS.find((c) => c.slug === input.category)
+  const to = categoryPath(input.category)
+  if (kind === 'tile') return { id, image: input.image, link: to, categorySlug: input.category }
+  return {
+    id,
+    title: '',
+    titleKey: config?.titleKey ?? '',
+    description: '',
+    descriptionKey: '',
+    image: input.image,
+    imageAlt: '',
+    to,
+    bgGradient: NEUTRAL_CARD_BG,
+    bgCardClass: 'card--neutral',
+    categoryValue: config?.category ?? input.category,
+    categorySlug: input.category,
   }
 }
 
-export function setSubBannerVisible(row: SubBannerView, visible: boolean): void {
+/** Creates an active banner in its type's storefront section. */
+export function createSubBanner(input: SubBannerInput): void {
+  let n = 1
+  const taken = (id: string) => SUB_BANNER_GROUPS.some((g) => g.list.list().some((e) => e.item.id === id))
+  while (taken(`sub-banner-${n}`)) n++
+  const id = `sub-banner-${n}`
+  const group = subTargetGroup(input.type as SubBannerType, input.homePlacement)
+  group.list.add(buildSubBanner(group.kind, id, input))
+}
+
+/** Updates a banner; a new type or Home placement moves it to that section, keeping its Active state. */
+export function updateSubBanner(row: SubBannerView, input: SubBannerInput): void {
+  const item = row.record.item
+  const target = subTargetGroup(input.type as SubBannerType, input.homePlacement)
+  if (target !== row.group) {
+    row.group.list.remove(item)
+    const next = buildSubBanner(target.kind, item.id, input)
+    target.list.add(next)
+    if (!row.active) target.list.setVisible(next, false)
+    return
+  }
+  const categoryChanged = subBannerCategory(row.record) !== input.category
+  const to = categoryPath(input.category)
   if (row.record.kind === 'tile') {
-    ;(row.group.list as ManagedList<BannerTile>).setVisible(row.record.item, visible)
+    const tile = row.record.item
+    tile.image = input.image
+    if (categoryChanged) tile.link = to
+    tile.categorySlug = input.category
   } else {
-    ;(row.group.list as ManagedList<CollectionBannerCard>).setVisible(row.record.item, visible)
+    const card = row.record.item
+    card.image = input.image
+    if (categoryChanged) {
+      card.to = to
+      card.categoryValue = ALL_COLLECTION_CONFIGS.find((c) => c.slug === input.category)?.category ?? input.category
+    }
+    card.categorySlug = input.category
   }
-}
-
-export function moveSubBanner(row: SubBannerView, direction: -1 | 1): void {
-  if (row.record.kind === 'tile') {
-    ;(row.group.list as ManagedList<BannerTile>).move(row.record.item, direction)
-  } else {
-    ;(row.group.list as ManagedList<CollectionBannerCard>).move(row.record.item, direction)
-  }
-}
-
-/** Position among the visible banners of its placement (1-based), or null if hidden. */
-export function subBannerPosition(row: SubBannerView): number | null {
-  return row.record.kind === 'tile'
-    ? (row.group.list as ManagedList<BannerTile>).position(row.record.item)
-    : (row.group.list as ManagedList<CollectionBannerCard>).position(row.record.item)
-}
-
-/** Whether the banner can move earlier (-1) or later (1) within its placement. */
-export function canMoveSubBanner(row: SubBannerView, direction: -1 | 1): boolean {
-  const entries = row.group.list.list() as ManagedEntryLike[]
-  const idx = entries.findIndex((e) => e.item === row.record.item)
-  return direction === -1 ? idx > 0 : idx >= 0 && idx < entries.length - 1
-}
-
-interface ManagedEntryLike {
-  item: unknown
 }
 
 /** Every image path already referenced by banner data (for the image picker). */
@@ -428,6 +451,6 @@ export function bannerImagePaths(): string[] {
   // Existing asset paths only (uploaded hero images are data URLs).
   for (const g of HERO_GROUPS) for (const e of g.list.list()) if (!e.item.image.startsWith('data:')) paths.add(e.item.image)
   for (const s of [...landingData.jerseysHero.slides, ...landingData.shoesHero.slides]) paths.add(s.image)
-  for (const row of listSubBanners()) if (row.image) paths.add(row.image)
+  for (const row of listSubBanners()) if (row.image && !row.image.startsWith('data:')) paths.add(row.image)
   return Array.from(paths)
 }

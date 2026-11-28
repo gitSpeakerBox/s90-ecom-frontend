@@ -296,13 +296,13 @@ export const CartItem: React.FC<CartItemProps> = ({
 
   const handleDecrease = () => {
     if (item.quantity > 1) {
-      updateQuantity(item.productSlug, item.size, item.quantity - 1)
+      updateQuantity(item.productSlug, item.size, item.quantity - 1, item.options)
     }
   }
 
   const handleIncrease = () => {
     if (item.quantity < stockLimit) {
-      updateQuantity(item.productSlug, item.size, item.quantity + 1)
+      updateQuantity(item.productSlug, item.size, item.quantity + 1, item.options)
     }
   }
 
@@ -320,7 +320,7 @@ export const CartItem: React.FC<CartItemProps> = ({
 
   const handleConfirmRemove = () => {
     setIsRemoveModalOpen(false)
-    removeFromCart(item.productSlug, item.size)
+    removeFromCart(item.productSlug, item.size, item.options)
   }
 
   const formattedPrice = formatPrice(
@@ -370,6 +370,9 @@ export const CartItem: React.FC<CartItemProps> = ({
                 {displayName}
               </Link>
             </h3>
+            {item.options && item.options.length > 0 && (
+              <p className="cart-item-options">{item.options.join(' · ')}</p>
+            )}
           </div>
 
           {/* Remove trash icon at top-right */}

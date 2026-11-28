@@ -16,7 +16,7 @@ import { getCatalogProducts, getPaginatedJerseys } from '../../services/productS
 import type { ProductFilterOptions } from '../../services/productService'
 import { getCollectionSlugForCategory, isCollectionPathActive } from '../../data/collections'
 import { useProductFilterChips } from '../../hooks/useProductFilterChips'
-import { getJerseysPageHeroSlides } from '../../services/landingService'
+import { getJerseysPageHeroSlides, heroTitleKey } from '../../services/landingService'
 import './JerseysHome.css'
 
 export const JerseysHome: React.FC = () => {
@@ -116,7 +116,7 @@ export const JerseysHome: React.FC = () => {
   const heroSlides: HeroSlideItem[] = getJerseysPageHeroSlides().map((slide) => ({
     image: slide.image,
     eyebrow: t(slide.eyebrowKey),
-    title: t(slide.titleKey),
+    title: t(heroTitleKey(slide)),
     text: t(slide.textKey),
     buttonLabel: t(slide.buttonLabelKey),
     to: slide.to,
